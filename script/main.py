@@ -17,10 +17,10 @@ while True:
                 crt_shader.change_shader()
             if event.key == pygame.K_r:
                 level.setup_level(level.level_data, True)
+            if event.key == pygame.K_m:
+                level.visible_sprites.mouse_camera = not level.visible_sprites.mouse_camera
         elif event.type == pygame.MOUSEBUTTONUP:
             level.player.sprite.mouse_shoot()
-        # elif event.type == pygame.MOUSEBUTTONDOWN:
-        #     level.player.sprite.mouse_shoot()
 
     level.run()
     

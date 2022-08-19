@@ -141,7 +141,7 @@ class YSortCameraGroup(pygame.sprite.Group):
 
         # box camera setup
         # self.camera_borders = {'left': 200, 'right': 200, 'top': 100, 'bottom': 100}
-        self.camera_borders = {'left': 400, 'right': 400, 'top': 200, 'bottom': 200}
+        self.camera_borders = {'left': 400, 'right': 200, 'top': 200, 'bottom': 200}
         camera_boarders_left = self.camera_borders['left']
         camera_boarders_top = self.camera_borders['top']
         camera_boarders_width = screen.get_size()[0]  - (self.camera_borders['left'] + self.camera_borders['right'])
@@ -167,6 +167,7 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.zoom_scale_maxinum = self.internal_surface_size[0]/screen_width
         # self.zoom_scale_mininum = 0.5 # change to large scale
         # self.zoom_scale_maxinum = 2
+        self.mouse_camera = False
 
     def center_target_camera(self, target):
         # put target at camera center
@@ -206,48 +207,49 @@ class YSortCameraGroup(pygame.sprite.Group):
 
     def mouse_control_camera(self):
         # mouse setting
-        pygame.event.set_grab(True) # make mouse can't leave screen anymore
-        mouse = pygame.math.Vector2(pygame.mouse.get_pos())
-        mouse_offset_vector = pygame.math.Vector2()
+        # pygame.event.set_grab(True) # make mouse can't leave screen anymore
+        if pygame.mouse.get_focused():
+            mouse = pygame.math.Vector2(pygame.mouse.get_pos())
+            mouse_offset_vector = pygame.math.Vector2()
 
-        left_border = self.camera_borders['left']
-        top_border = self.camera_borders['top']
-        right_border = screen.get_size()[0] - self.camera_borders['right']
-        bottom_border = screen.get_size()[1] - self.camera_borders['bottom']
+            left_border = self.camera_borders['left']
+            top_border = self.camera_borders['top']
+            right_border = screen.get_size()[0] - self.camera_borders['right']
+            bottom_border = screen.get_size()[1] - self.camera_borders['bottom']
 
-        if top_border < mouse.y < bottom_border:
-            if mouse.x < left_border:
-                mouse_offset_vector.x = mouse.x - left_border
-                pygame.mouse.set_pos((left_border, mouse.y))
-            if mouse.x > right_border:
-                mouse_offset_vector.x = mouse.x - right_border
-                pygame.mouse.set_pos((right_border, mouse.y))
-        elif mouse.y < top_border:
-            if mouse.x < left_border:
-                mouse_offset_vector = mouse - pygame.math.Vector2(left_border, top_border)
-                pygame.mouse.set_pos((left_border, top_border))
-            if mouse.x > right_border:
-                mouse_offset_vector = mouse - pygame.math.Vector2(right_border, top_border)
-                pygame.mouse.set_pos((right_border, top_border))
-        elif mouse.y > bottom_border:
-            if mouse.x < left_border:
-                mouse_offset_vector = mouse - pygame.math.Vector2(left_border, bottom_border)
-                pygame.mouse.set_pos((left_border, bottom_border))
-            if mouse.x > right_border:
-                mouse_offset_vector = mouse - pygame.math.Vector2(right_border, bottom_border)
-                pygame.mouse.set_pos((right_border, bottom_border))
+            if top_border < mouse.y < bottom_border:
+                if mouse.x < left_border:
+                    mouse_offset_vector.x = mouse.x - left_border
+                    # pygame.mouse.set_pos((left_border, mouse.y))
+                if mouse.x > right_border:
+                    mouse_offset_vector.x = mouse.x - right_border
+                    # pygame.mouse.set_pos((right_border, mouse.y))
+            elif mouse.y < top_border:
+                if mouse.x < left_border:
+                    mouse_offset_vector = mouse - pygame.math.Vector2(left_border, top_border)
+                    # pygame.mouse.set_pos((left_border, top_border))
+                if mouse.x > right_border:
+                    mouse_offset_vector = mouse - pygame.math.Vector2(right_border, top_border)
+                    # pygame.mouse.set_pos((right_border, top_border))
+            elif mouse.y > bottom_border:
+                if mouse.x < left_border:
+                    mouse_offset_vector = mouse - pygame.math.Vector2(left_border, bottom_border)
+                    # pygame.mouse.set_pos((left_border, bottom_border))
+                if mouse.x > right_border:
+                    mouse_offset_vector = mouse - pygame.math.Vector2(right_border, bottom_border)
+                    # pygame.mouse.set_pos((right_border, bottom_border))
 
-        if left_border < mouse.x < right_border:
-            if mouse.y < top_border:
-                mouse_offset_vector.y = mouse.y - top_border
-                pygame.mouse.set_pos((mouse.x, top_border))
-            if mouse.y > bottom_border:
-                mouse_offset_vector.y = mouse.y - bottom_border
-                pygame.mouse.set_pos((mouse.x, bottom_border))
+            if left_border < mouse.x < right_border:
+                if mouse.y < top_border:
+                    mouse_offset_vector.y = mouse.y - top_border
+                    # pygame.mouse.set_pos((mouse.x, top_border))
+                if mouse.y > bottom_border:
+                    mouse_offset_vector.y = mouse.y - bottom_border
+                    # pygame.mouse.set_pos((mouse.x, bottom_border))
 
-        # self.offset += mouse_offset_vector * self.mouse_speed # ver 1 for only mouse
-        self.camera_rect.x += mouse_offset_vector.x * self.mouse_speed
-        self.camera_rect.y += mouse_offset_vector.y * self.mouse_speed
+            # self.offset += mouse_offset_vector * self.mouse_speed # ver 1 for only mouse
+            self.camera_rect.x += mouse_offset_vector.x * self.mouse_speed
+            self.camera_rect.y += mouse_offset_vector.y * self.mouse_speed
 
     def zoom_keyboard_control(self):
         keys = pygame.key.get_pressed()
@@ -264,7 +266,8 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.box_target_camera(player) # camera box
         self.keyboard_control_camera()
         self.zoom_keyboard_control()
-        # self.mouse_control_camera()
+        if self.mouse_camera:
+            self.mouse_control_camera()
 
         # limit scale size
         if self.zoom_scale < self.zoom_scale_mininum:
@@ -299,4 +302,4 @@ class YSortCameraGroup(pygame.sprite.Group):
         screen.blit(scaled_surf, scaled_rect)
         
         # camera box line
-        # pygame.draw.rect(screen, 'yellow', self.camera_rect, 5)
+        pygame.draw.rect(screen, 'yellow', self.camera_rect, 5)
