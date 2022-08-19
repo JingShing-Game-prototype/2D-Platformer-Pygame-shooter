@@ -136,10 +136,11 @@ class Player(pygame.sprite.Sprite):
                 self.flip = True
             else:
                 self.flip = False
+            body_width = self.image.get_size()[0]
             if not self.flip:
-                pos = self.rect.midright + pygame.math.Vector2(10, 0)
+                pos = self.rect.midright + pygame.math.Vector2(body_width, 0)
             else:
-                pos = self.rect.midleft + pygame.math.Vector2(-10, 0)
+                pos = self.rect.midleft + pygame.math.Vector2(-body_width, 0)
             for i in range(self.shoot_times):
                 direction = pygame.math.Vector2(x, y + randint(-200, 200))
                 self.create_bullet(pos=pos, direction = direction, speed = self.bullet_speed)

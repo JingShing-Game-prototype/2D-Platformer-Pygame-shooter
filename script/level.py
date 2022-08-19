@@ -167,7 +167,9 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.zoom_scale_maxinum = self.internal_surface_size[0]/screen_width
         # self.zoom_scale_mininum = 0.5 # change to large scale
         # self.zoom_scale_maxinum = 2
+
         self.mouse_camera = False
+        self.test_camera_box = False
 
     def center_target_camera(self, target):
         # put target at camera center
@@ -301,5 +303,6 @@ class YSortCameraGroup(pygame.sprite.Group):
 
         screen.blit(scaled_surf, scaled_rect)
         
-        # camera box line
-        pygame.draw.rect(screen, 'yellow', self.camera_rect, 5)
+        if self.test_camera_box:
+            # camera box line
+            pygame.draw.rect(screen, 'yellow', self.camera_rect, 5)
