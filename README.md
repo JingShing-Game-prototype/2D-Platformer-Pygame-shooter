@@ -8,4 +8,6 @@ f to shoot in front of character
 
 m to switch mouse control camera
 
+l to open test camera box
+
 mouse to aim and shoot
