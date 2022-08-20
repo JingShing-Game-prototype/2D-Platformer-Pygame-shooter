@@ -12,24 +12,23 @@ class Weapon(pygame.sprite.Sprite):
         self.user = user
         self.rect = self.or_image.get_rect(center=self.user.rect.center)
         self.image = self.or_image.copy()
-        self.flip = False
 
     def adjust_pos(self):
         mouse_pos = pygame.mouse.get_pos()
         user_pos = self.user.offset_pos
         x = mouse_pos[0] - user_pos[0]
         y = mouse_pos[1] - user_pos[1]
-        self.flip = True if x < 0 else False
+        self.user.flip = True if x < 0 else False
         if x!=0 and y!=0:
             angle = (numpy.arctan(y/x) * 180 / 3.14)
             if self.user.using_weapon:
                 angle += randint(-20, 20)
-            if not self.flip:
+            if not self.user.flip:
                 angle = -angle
         else:
             angle = 0
         self.image = pygame.transform.rotate(self.or_image, angle)
-        if self.flip:
+        if self.user.flip:
             self.image = pygame.transform.flip(self.image, True, False)
         self.rect = self.image.get_rect(center=self.user.rect.center)
 

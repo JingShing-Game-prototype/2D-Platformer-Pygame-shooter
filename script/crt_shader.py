@@ -17,6 +17,7 @@ class Graphic_engine:
         self.cpu_only = cpu_only
         self.screen = screen
         self.VIRTUAL_RES = VIRTUAL_RES
+        self.fullscreen = False
         if not(self.cpu_only):
             self.ctx = moderngl.create_context()
             self.texture_coordinates = [0, 1,  1, 1,
@@ -69,6 +70,18 @@ class Graphic_engine:
         else:
             self.diaplay.blit(self.screen, (0, 0))
             pygame.display.update()
+    
+    def Full_screen(self, REAL_RES):
+        if not(self.cpu_only):
+            if not(self.fullscreen):
+                pygame.display.set_mode(REAL_RES, pygame.DOUBLEBUF|pygame.OPENGL)
+            else:
+                pygame.display.set_mode(REAL_RES, pygame.DOUBLEBUF|pygame.OPENGL|pygame.FULLSCREEN)
+        else:
+            if not(self.fullscreen):
+                pygame.display.set_mode(self.VIRTUAL_RES)
+            else:
+                pygame.display.set_mode(self.VIRTUAL_RES, pygame.FULLSCREEN)
     
     def __call__(self):
         return self.render()

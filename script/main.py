@@ -19,8 +19,17 @@ while True:
                 level.setup_level(level.level_data, True)
             if event.key == pygame.K_m:
                 level.visible_sprites.mouse_camera = not level.visible_sprites.mouse_camera
+            if event.key == pygame.K_l:
+                level.visible_sprites.test_camera_box = not level.visible_sprites.test_camera_box
         elif event.type == pygame.MOUSEBUTTONUP:
-            level.player.sprite.mouse_shoot()
+            if event.button == 4 or event.button == 5:
+                # only scroll can shoot
+                level.player.sprite.bullet_shoot(mode='mouse')
+                # 1 - left click
+                # 2 - middle click
+                # 3 - right click
+                # 4 - scroll up
+                # 5 - scroll down
 
     level.run()
     

@@ -47,6 +47,8 @@ class Player(pygame.sprite.Sprite):
         self.shoot_time = None
         self.shoot_cooldown = 50
         self.shoot_times = 1
+        self.shoot_se = pygame.mixer.Sound('assets\\audio\SE\Gunshot_SE.mp3')
+        self.shoot_se.set_volume(0.1)
 
     def import_character_assets(self):
         self.animations = {
@@ -114,36 +116,39 @@ class Player(pygame.sprite.Sprite):
             self.jump()
             self.creat_jump_or_run_particles(self.rect.midbottom)
 
-        if keys[pygame.K_f] and self.can_shoot:
-            self.shoot_time = pygame.time.get_ticks()
-            self.can_shoot = False
-            if not self.flip:
-                pos = self.rect.midright + pygame.math.Vector2(10, 0)
-                direction = pygame.math.Vector2(1, 0)
-            else:
-                pos = self.rect.midleft + pygame.math.Vector2(-10, 0)
-                direction = pygame.math.Vector2(-1, 0)
-            self.create_bullet(pos=pos, direction = direction, speed = self.bullet_speed)
+        if keys[pygame.K_f]:
+            self.bullet_shoot(mode='mouse')
 
-    def mouse_shoot(self):
+    def bullet_shoot(self, mode='key'):
         if self.can_shoot:
-            self.using_weapon = True
-            mouse_pos = pygame.mouse.get_pos()
-            user_pos = self.offset_pos
-            x = mouse_pos[0] - user_pos[0]
-            y = mouse_pos[1] - user_pos[1]
-            if x < 0:
-                self.flip = True
-            else:
-                self.flip = False
-            body_width = self.image.get_size()[0]
-            if not self.flip:
-                pos = self.rect.midright + pygame.math.Vector2(body_width, 0)
-            else:
-                pos = self.rect.midleft + pygame.math.Vector2(-body_width, 0)
-            for i in range(self.shoot_times):
-                direction = pygame.math.Vector2(x, y + randint(-200, 200))
+            self.shoot_se.play()
+            if mode == 'mouse':
+                self.using_weapon = True
+                mouse_pos = pygame.mouse.get_pos()
+                user_pos = self.offset_pos
+                x = mouse_pos[0] - user_pos[0]
+                y = mouse_pos[1] - user_pos[1]
+                if x < 0:
+                    self.flip = True
+                else:
+                    self.flip = False
+                body_width = self.image.get_size()[0]
+                if not self.flip:
+                    pos = self.rect.midright + pygame.math.Vector2(body_width, 0)
+                else:
+                    pos = self.rect.midleft + pygame.math.Vector2(-body_width, 0)
+                for i in range(self.shoot_times):
+                    direction = pygame.math.Vector2(x, y + randint(-200, 200))
+                    self.create_bullet(pos=pos, direction = direction, speed = self.bullet_speed)
+            elif mode == 'key':
+                if not self.flip:
+                    pos = self.rect.midright + pygame.math.Vector2(10, 0)
+                    direction = pygame.math.Vector2(1, 0)
+                else:
+                    pos = self.rect.midleft + pygame.math.Vector2(-10, 0)
+                    direction = pygame.math.Vector2(-1, 0)
                 self.create_bullet(pos=pos, direction = direction, speed = self.bullet_speed)
+
         self.shoot_time = pygame.time.get_ticks()
         self.can_shoot = False
         self.using_weapon = False
