@@ -11,3 +11,5 @@ m to switch mouse control camera
 l to open test camera box
 
 mouse to aim and shoot
+
+use mouse scroll up and scroll down to shoot -> it's like use real gun trigger
