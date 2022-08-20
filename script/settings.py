@@ -13,9 +13,9 @@ pygame.init()
 level_map = [
 '                            ',
 '                            ',
-'                            ',
+'                       N    ',
 ' XX    XXX            XX    ',
-' XX P                       ',
+' XX P         N             ',
 ' XXXX         XX         XX ',
 ' XXXX       XX              ',
 ' XX    X  XXXX    XX  XX    ',

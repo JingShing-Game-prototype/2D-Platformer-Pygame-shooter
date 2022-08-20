@@ -4,11 +4,14 @@ from level import Level
 
 # pygame setup
 pygame.init()
+pygame.display.set_icon(pygame.image.load('assets\icon\icon.png').convert_alpha())
+pygame.display.set_caption('Gun Fight')
 clock = pygame.time.Clock()
 level = Level(level_data=level_map, surface=screen)
 
 while True:
     for event in pygame.event.get():
+        pygame.display.set_caption('Gun Fight' + ' : ' + str(round(clock.get_fps(), 1)))
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()
@@ -21,10 +24,14 @@ while True:
                 level.visible_sprites.mouse_camera = not level.visible_sprites.mouse_camera
             if event.key == pygame.K_l:
                 level.visible_sprites.test_camera_box = not level.visible_sprites.test_camera_box
-        elif event.type == pygame.MOUSEBUTTONUP:
-            if event.button == 4 or event.button == 5:
+            if event.key == pygame.K_o:
+                for sprite in level.enemy_sprite.sprites():
+                    sprite.defense = not sprite.defense
+        # elif event.type == pygame.MOUSEBUTTONDOWN:
+        #     if event.button == 1:
+        #         if level.player.sprite:
+        #             level.player.sprite.bullet_shoot(mode='mouse')
                 # only scroll can shoot
-                level.player.sprite.bullet_shoot(mode='mouse')
                 # 1 - left click
                 # 2 - middle click
                 # 3 - right click

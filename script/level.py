@@ -5,6 +5,7 @@ from settings import tile_size, screen_width, screen_height
 from particles import ParticleEffect
 from bullet import Bullet
 from weapon import Weapon
+from enemy import Enemy
 import math
 from debug import debug
 
@@ -25,12 +26,13 @@ class Level:
         self.player = pygame.sprite.GroupSingle()
         self.dust_sprite = pygame.sprite.GroupSingle()
         self.bullet_sprite = pygame.sprite.Group()
+        self.enemy_sprite = pygame.sprite.Group()
 
         # dust
         self.player_on_ground = False
         self.setup_level(self.level_data)
 
-    def create_jump_or_run_particles(self, pos, type=None):
+    def create_jump_or_run_particles(self, pos, type='run'):
         if not self.player.sprite.flip:
             pos -= pygame.math.Vector2(10, 5)
         else:
@@ -42,13 +44,27 @@ class Level:
             pos -= pygame.math.Vector2(10, 5)
         else:
             pos -= pygame.math.Vector2(-10, 5)
-        Bullet(pos, [self.visible_sprites, 
-                    self.bullet_sprite,
-                    self.obstacle_sprites], 
-                    self.obstacle_sprites,
-                    type, 
-                    direction,
-                    speed)
+        if type:
+            Bullet(pos, [self.visible_sprites, 
+                        self.bullet_sprite,
+                        self.obstacle_sprites], 
+                        self.obstacle_sprites,
+                        type, 
+                        direction,
+                        speed,
+                        self.create_blood_effect)
+        else:
+            Bullet(pos, [self.visible_sprites, 
+                        self.bullet_sprite,
+                        self.obstacle_sprites], 
+                        self.obstacle_sprites,
+                        direction = direction,
+                        speed = speed,
+                        create_blood_effect = self.create_blood_effect)
+
+
+    def create_blood_effect(self, pos, type='blood'):
+        ParticleEffect(pos, [self.visible_sprites, self.dust_sprite], type)
 
     def less_bullet(self, amount = 50):
         if len(self.bullet_sprite.sprites())>amount:
@@ -66,14 +82,17 @@ class Level:
                     sprite.kill()
 
     def get_player_on_ground(self):
-        self.player_on_ground = True if self.player.sprite.on_ground else False
+        if self.player.sprite:
+            self.player_on_ground = True if self.player.sprite.on_ground else False
 
     def create_landing_dust(self):
-        if not self.player_on_ground and self.player.sprite.on_ground and not self.dust_sprite.sprites():
-            offset = pygame.math.Vector2(10, 15) if not self.player.sprite.flip else pygame.math.Vector2(-10, 15)
-            fall_dust_particle = ParticleEffect(self.player.sprite.rect.midbottom - offset, 
-            [self.visible_sprites, 
-            self.dust_sprite])
+        if self.player.sprite:
+            if not self.player_on_ground and self.player.sprite.on_ground and not self.dust_sprite.sprites():
+                offset = pygame.math.Vector2(10, 15) if not self.player.sprite.flip else pygame.math.Vector2(-10, 15)
+                ParticleEffect(self.player.sprite.rect.midbottom - offset, 
+                [self.visible_sprites, 
+                self.dust_sprite],
+                'landing')
 
     def setup_level(self, layout, reset = False):
         if reset:            
@@ -104,26 +123,73 @@ class Level:
                         self.player], 
                         self.obstacle_sprites,
                         self.create_jump_or_run_particles,
-                        self.create_bullet)
-                        Weapon([self.visible_sprites],
-                        self.player.sprite)
+                        self.create_bullet,
+                        self.create_weapon)
+            
+        for row_index, row in enumerate(layout):
+            for col_index, cell in enumerate(row):
+                x = col_index * tile_size
+                y = row_index * tile_size
+                # enemy need player as target
+                # enemy might spawn before player spawn
+                if cell == 'N':
+                    Enemy((x, y), 
+                    [self.visible_sprites,
+                    self.obstacle_sprites, 
+                    self.enemy_sprite], 
+                    self.obstacle_sprites,
+                    self.create_jump_or_run_particles,
+                    self.create_bullet,
+                    self.player.sprite,
+                    self.create_weapon)
+
+    def create_weapon(self, user, type=None, target=None):
+        if type:
+            return Weapon([self.visible_sprites],
+                            user, 
+                            self.player.sprite,
+                            type = type)
+        else:
+            return Weapon([self.visible_sprites],
+                            user, 
+                            self.player.sprite)
+
+    def no_player(self):
+        if not self.player.sprite:
+            self.setup_level(self.level_data, True) # keep body
 
     def player_over_ground(self):
-        if self.player.sprite.rect.y > self.display_surface.get_height():
-            self.setup_level(self.level_data) # keep body
+        if self.player.sprite:
+            if self.player.sprite.rect.centery > self.display_surface.get_height():
+                self.player.sprite.direction.y = 0
+                self.player.sprite.rect.y -= 1000
+                # self.setup_level(self.level_data) # keep body
+
+            # X border
+            # if self.player.sprite.rect.centerx > self.display_surface.get_width() * 2:
+            #     self.player.sprite.direction.x = 0
+            #     self.player.sprite.rect.x = self.display_surface.get_width()
+            # if self.player.sprite.rect.centerx < -100:
+            #     self.player.sprite.direction.x = 0
+            #     self.player.sprite.rect.x = 0
 
     def run(self):
         # self.less_bullet()
+        self.no_player()
         self.less_bullet(50)
         self.far_bullets_kill(0)
-        self.visible_sprites.custom_draw(self.player.sprite)
+        if self.player.sprite:
+            self.visible_sprites.custom_draw(self.player.sprite)
+        else:
+            self.visible_sprites.custom_draw(self.enemy_sprite.sprites()[0])
         self.visible_sprites.update()
         self.get_player_on_ground()
         self.create_landing_dust()
         self.player_over_ground()
 
-        debug(str(self.player.sprite.rect))
-        debug(str(pygame.mouse.get_pos()), 10, 60)
+        if self.player.sprite:
+            debug(str(self.player.sprite.rect))
+            debug(str(pygame.mouse.get_pos()), 10, 60)
 
 from settings import screen, screen_height, screen_width
 class YSortCameraGroup(pygame.sprite.Group):
@@ -164,9 +230,9 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.internal_offset.y = self.internal_surface_size[1] // 2 - self.half_screen_height
 
         self.zoom_scale_mininum = screen_width/self.internal_surface_size[0] # change to large scale
-        self.zoom_scale_maxinum = self.internal_surface_size[0]/screen_width
-        # self.zoom_scale_mininum = 0.5 # change to large scale
-        # self.zoom_scale_maxinum = 2
+        # self.zoom_scale_maxinum = self.internal_surface_size[0]/screen_width
+        # self.zoom_scale_mininum = 0.1 # change to large scale
+        self.zoom_scale_maxinum = 5
 
         self.mouse_camera = False
         self.test_camera_box = False
