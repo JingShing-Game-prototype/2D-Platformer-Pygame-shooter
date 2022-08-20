@@ -16,3 +16,19 @@ Enemy has a simple ai to aim player. And need to be trigger.
 * Shooting will shake weapon now.
 * Add China variable to control blood is green or red.
 * Enemy will being intense if you attack in front of them.
+
+## Up to do
+
+- [ ] background particle
+- [ ] enemy body flesh explode effect
+- [ ] more weapon
+- [ ] melee weapon and melee attack system
+- [ ] switch map system
+- [ ] networking
+- [ ] Imporve AI move
+- [ ] Change Character sprite
+- [ ] Add crouch system
+- [ ] Parkour system
+- [ ] Boss Fight
+- [ ] Random mode
+- [ ] Store System
