@@ -1,6 +1,6 @@
 import pygame
 from random import randint
-from settings import weapon_bullet_type, resource_path
+from settings import weapon_bullet_type, resource_path, map_width, map_height
 
 class Entity(pygame.sprite.Sprite):
     def __init__(self, groups):
@@ -10,6 +10,9 @@ class Entity(pygame.sprite.Sprite):
         self.animation_speed = 0.15
 
         # status
+        self.invinsible = False
+        self.invinsible_time = None
+        self.invinsible_duration = 500
         self.health = 100
         self.status = 'idle'
         self.crouch = False
@@ -44,10 +47,16 @@ class Entity(pygame.sprite.Sprite):
         self.shoot_se = pygame.mixer.Sound(resource_path('assets\\audio\SE\Gunshot_SE.mp3'))
         self.shoot_se.set_volume(0.01)
 
+        # weapon
+        self.weapon_index = 0
+        self.weapon_list = ['ak74', 'bullet', 'sword', 'shield']
+        self.weapon_type = self.weapon_list[self.weapon_index]
+
         # melee attack
         self.can_melee = True
         self.melee_attack_time = None
-        self.melee_attack_cd = 500
+        self.or_melee_attack_cd = 500
+        self.melee_attack_cd = self.or_melee_attack_cd
 
     def run_dust_animation(self):
         if self.status == 'run' and self.on_ground:
@@ -90,15 +99,17 @@ class Entity(pygame.sprite.Sprite):
             pos = self.weapon.gun_shot_pos
             if not pos:
                 pos = pygame.math.Vector2()
-            
-            if self.weapon.type in weapon_bullet_type:
-                bullet_type = weapon_bullet_type[self.weapon.type]
-            else:
-                bullet_type = None
 
-            for i in range(self.shoot_times):
+            for _ in range(self.shoot_times):
+                # If i > 1 it would be like a shotgun
                 direction = pygame.math.Vector2(x, y + randint(-self.aim_rate, self.aim_rate))
-                self.create_bullet(pos=pos, direction = direction, speed = self.bullet_speed, user=self, type = bullet_type)
+                if self.weapon.type in weapon_bullet_type:
+                    across_wall = weapon_bullet_type[self.weapon.type]['across_wall']
+                    bullet_type_name = weapon_bullet_type[self.weapon.type]['name']
+                else:
+                    across_wall = False
+                    bullet_type_name = 'bullet'
+                self.create_bullet(pos=pos, direction = direction, speed = self.bullet_speed, user=self, type = bullet_type_name, across_wall=across_wall)
 
             self.shoot_time = pygame.time.get_ticks()
             self.can_shoot = False
@@ -121,17 +132,25 @@ class Entity(pygame.sprite.Sprite):
     def jump(self):
         self.direction.y = self.jump_speed
 
-    def debug_show_can_jump(self):
-        if self.on_ground:
-            self.image.fill('green')
-        else:
-            self.image.fill('red')
-
     def move(self):
         self.rect.x += self.direction.x * self.speed
         self.collision('horizontal')
         self.apply_gravity()
         self.collision('vertical')
+        self.over_border()
+
+    def over_border(self):
+        # if out map it's a loop
+        if self.rect.y < -100 and self.direction.y < 0:
+            self.rect.y = 0
+            self.direction.y = 0
+        elif self.rect.y > map_height + 200:
+            self.rect.y -= 1000
+            self.direction.y = 0
+        if self.rect.x > map_width + 500:
+            self.rect.x = 0
+        elif self.rect.x < 0 - 500:
+            self.rect.x = map_width
 
     def collision(self, direction):
         for sprite in self.obstacle_sprites:
@@ -183,9 +202,17 @@ class Entity(pygame.sprite.Sprite):
         if not self.can_melee:
             if now - self.melee_attack_time > self.melee_attack_cd:
                 self.can_melee = True
+        if self.invinsible:
+            if now - self.invinsible_time > self.invinsible_duration:
+                self.invinsible = False
+
 
     def get_damage(self, value):
-        self.health -= value
-        if self.health <= 0:
-            self.kill()
-            self.weapon.kill()
+        if not self.invinsible:
+            self.health -= value
+            if self.health <= 0:
+                self.kill()
+                self.weapon.kill()
+            else:
+                self.invinsible = True
+                self.invinsible_time = pygame.time.get_ticks()

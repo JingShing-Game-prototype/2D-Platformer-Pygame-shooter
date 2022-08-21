@@ -1,12 +1,13 @@
 import pygame
-from settings import screen_height, screen_width, resource_path
+from settings import map_height, map_width, resource_path
 import numpy
 import os
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, obstacle_sprites, type='ak74', direction=pygame.math.Vector2(0, 0), speed = 0.1, create_blood_effect=None, user=None):
+    def __init__(self, pos, groups, obstacle_sprites, type='ak74', direction=pygame.math.Vector2(0, 0), speed = 0.1, create_blood_effect=None, user=None, across_wall=False):
         super().__init__(groups)
         self.object_type = 'bullet'
+        self.across_wall = across_wall
         self.type = type
         self.user = user
         self.obstacle_sprites = obstacle_sprites
@@ -20,7 +21,7 @@ class Bullet(pygame.sprite.Sprite):
 
         # bullet damage and health
         self.health = 10
-        self.damage = 1
+        self.damage = 3
 
     def get_self_type_info(self):
         if os.path.exists('assets/graphics/weapon/' + self.type + '.png'):
@@ -97,7 +98,7 @@ class Bullet(pygame.sprite.Sprite):
                     if sprite.user != self.user:
                         if sprite.direction.magnitude() != 0:
                             self.touch_target(sprite)
-            else:
+            elif not self.across_wall:
                 if direction == 'horizontal':
                     if sprite.rect.colliderect(self.rect):
                         if self.direction.x < 0:
@@ -124,5 +125,16 @@ class Bullet(pygame.sprite.Sprite):
         self.rect.y += self.direction.y * self.speed
         self.object_movement_collision(direction='vertical')
 
+    def out_border(self):
+        if self.rect.y < -100 and self.direction.y < 0:
+            self.rect.y = map_height
+        elif self.rect.y > map_height + 100:
+            self.rect.y -= 1000
+        if self.rect.x < -200:
+            self.rect.x = map_width
+        elif self.rect.x > map_width + 200:
+            self.rect.x = 0
+
     def update(self):
         self.move()
+        self.out_border()

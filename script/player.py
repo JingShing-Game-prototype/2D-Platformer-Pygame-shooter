@@ -21,12 +21,11 @@ class Player(Entity):
         # player movement
         self.obstacle_sprites = obstacle_sprites
 
-        # bullet
+        # weapon
         self.can_switch_weapon = True
         self.switch_weapon_time = None
         self.switch_weapon_cd = 500
-        self.weapon_index = 0
-        self.weapon_list = ['bullet', 'ak74', 'sword']
+        self.weapon_index = 2
         self.create_weapon = create_weapon
         self.weapon = self.create_weapon(user=self, type=self.weapon_list[self.weapon_index])
 
@@ -94,13 +93,19 @@ class Player(Entity):
         if mouse[2]:
             self.melee_attack()
         elif keys[pygame.K_e]:
-            self.switch_weapon()
+            self.switch_weapon('next')
+        elif keys[pygame.K_q]:
+            self.switch_weapon('before')
 
-    def switch_weapon(self):
+    def switch_weapon(self, which='next'):
         if self.weapon and self.can_switch_weapon:
             self.can_switch_weapon = False
             self.switch_weapon_time = pygame.time.get_ticks()
-            self.weapon_index = (self.weapon_index + 1) % len(self.weapon_list)
+            if which == 'next':
+                self.weapon_index = (self.weapon_index + 1) % len(self.weapon_list)
+            elif which == 'before':
+                self.weapon_index = (self.weapon_index + len(self.weapon_list) - 1) % len(self.weapon_list)
+            self.weapon_type = self.weapon_list[self.weapon_index]
             self.weapon.__init__(user=self.weapon.user, obstacle_sprite = self.weapon.obstacle_sprite, groups=self.weapon.sprite_groups, target=self.weapon.target, type=self.weapon_list[self.weapon_index], create_blood_effect=self.weapon.create_blood_effect)
 
     def cooldown(self):

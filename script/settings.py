@@ -10,12 +10,18 @@ def resource_path(relative):
 
 pygame.init()
 
-level_map = [
+def get_map_width_and_height(map, tile_size):
+	map_width = len(map[0])*tile_size
+	map_height = len(map) * tile_size
+	return map_width, map_height
+
+
+no_enemy_level_map = [
 '                            ',
 '                            ',
-'                       N    ',
+'                            ',
 ' XX    XXX            XX    ',
-' XX P         N             ',
+' XX P                       ',
 ' XXXX         XX         XX ',
 ' XXXX       XX              ',
 ' XX    X  XXXX    XX  XX    ',
@@ -23,11 +29,23 @@ level_map = [
 '    XXXX  XXXXXX  XX  XXXX  ',
 'XXXXXXXX  XXXXXX  XX  XXXX  ']
 
+level_map = [
+'                            ',
+'                            ',
+'                       N    ',
+' XX    XXX            XX    ',
+' XX P         N             ',
+' XXXX         XX         XX ',
+' XXXX      NXX              ',
+' XX    X  XXXX    XX  XX    ',
+'       X  XXXX    XX  XXX   ',
+'    XXXX  XXXXXX  XX  XXXX  ',
+'XXXXXXXX  XXXXXX  XX  XXXX  ']
+
 tile_size = 64
-# screen_width = 1200
-# screen_height = len(level_map) * tile_size
 screen_width = 64*15
 screen_height = 640
+map_width, map_height = get_map_width_and_height(level_map, tile_size)
 
 VIRTUAL_RES = (screen_width, screen_height)
 REAL_RES = (1280, 720)
@@ -38,13 +56,14 @@ screen = pygame.Surface(VIRTUAL_RES).convert((255, 65280, 16711680, 0))
 crt_shader = Graphic_engine(screen=screen, style=2, VIRTUAL_RES=VIRTUAL_RES)
 
 weapon_bullet_type = {
-	'ak74':'bullet',
-	'bullet':'ak74',
-	'sword':'sword',
+	'ak74':{'name':'bullet', 'across_wall':False},
+	'bullet':{'name':'ak74', 'across_wall':False},
+	'sword':{'name':'sword', 'across_wall':True},
 }
 
 weapon_data = {
-	'ak74':{'size':(96, 32), 'melee_angle_speed':5, 'melee_attack_cd':500, 'melee_attack_direction':1},
-	'bullet':{'size':(32, 16), 'melee_angle_speed':5, 'melee_attack_cd':500, 'melee_attack_direction':1},
+	'ak74':{'size':(96, 32)},
+	'bullet':{'size':(32, 16)},
 	'sword':{'size':(120, 30), 'melee_angle_speed':10, 'melee_attack_cd':5, 'melee_attack_direction':1},
+	'shield':{'size':(120, 120)},
 }

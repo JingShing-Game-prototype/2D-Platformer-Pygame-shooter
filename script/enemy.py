@@ -1,6 +1,5 @@
 import pygame
 from entity import Entity
-from settings import screen_width
 
 class Enemy(Entity):
     def __init__(self, pos, groups, obstacle_sprites, create_jump_or_run_particles, create_bullet, target, create_weapon):
@@ -23,7 +22,7 @@ class Enemy(Entity):
         # bullet
         self.defense = False
         self.create_weapon = create_weapon
-        self.weapon = self.create_weapon(user=self, target=self.target)
+        self.weapon = self.create_weapon(user=self, target=self.target, type = self.weapon_type)
         self.attack_mode = 'range' # range or melee
 
     def animate(self):
@@ -74,13 +73,6 @@ class Enemy(Entity):
                 self.attack_mode = 'melee'
         else:
             self.direction.x = 0
-
-        # if out window then kill
-        if self.rect.centery > screen_width:
-            self.direction.y = 0
-            self.rect.y -= 1000
-        # if not self.on_ground:
-        #     self.jump()
 
     def update(self):
         self.common_cooldown()

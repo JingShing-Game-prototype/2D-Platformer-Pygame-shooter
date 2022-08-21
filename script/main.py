@@ -7,11 +7,18 @@ pygame.init()
 pygame.display.set_icon(pygame.image.load(resource_path('assets\icon\icon.png')).convert_alpha())
 pygame.display.set_caption('Gun Fight')
 clock = pygame.time.Clock()
-level = Level(level_data=level_map, surface=screen)
+level = Level(level_data=no_enemy_level_map, surface=screen)
+
+def dynamic_bullet_amount():
+    if clock.get_fps() < 40 and level.max_bullet_in_map > 100:
+        level.max_bullet_in_map -= 10
+    else:
+        level.max_bullet_in_map = 300
 
 while True:
     for event in pygame.event.get():
         pygame.display.set_caption('Gun Fight' + ' : ' + str(round(clock.get_fps(), 1)))
+        dynamic_bullet_amount()
         if event.type == pygame.QUIT:
             pygame.quit()
             sys.exit()

@@ -1,7 +1,7 @@
 import pygame
 from tiles import Tile
 from player import Player
-from settings import tile_size, screen_width, screen_height
+from settings import tile_size
 from particles import ParticleEffect
 from bullet import Bullet
 from weapon import Weapon
@@ -33,6 +33,7 @@ class Level:
         self.setup_level(self.level_data)
 
         # bullet
+        self.max_bullet_in_map = 100
         self.bullet_far_kill_range = 800
 
     def create_jump_or_run_particles(self, pos, type='run'):
@@ -42,7 +43,7 @@ class Level:
             pos -= pygame.math.Vector2(-10, 5)
         ParticleEffect(pos, [self.visible_sprites, self.dust_sprite], type)
 
-    def create_bullet(self, pos=pygame.math.Vector2(), type=None, direction=pygame.math.Vector2(0, 0), speed = 0.1, user=None):
+    def create_bullet(self, pos=pygame.math.Vector2(), type=None, direction=pygame.math.Vector2(0, 0), speed = 0.1, user=None, across_wall=False):
         if user:
             if not user.flip:
                 pos -= pygame.math.Vector2(10, 5)
@@ -57,7 +58,8 @@ class Level:
                         direction,
                         speed,
                         self.create_blood_effect,
-                        user)
+                        user,
+                        across_wall)
         else:
             Bullet(pos, [self.visible_sprites, 
                         self.bullet_sprite,
@@ -66,8 +68,8 @@ class Level:
                         direction = direction,
                         speed = speed,
                         create_blood_effect = self.create_blood_effect,
-                        user=user)
-
+                        user=user,
+                        across_wall=across_wall)
 
     def create_blood_effect(self, pos, type='blood'):
         ParticleEffect(pos, [self.visible_sprites, self.dust_sprite], type)
@@ -85,6 +87,14 @@ class Level:
                 if len(self.bullet_sprite.sprites())<=amount:
                     break
                 if math.sqrt((sprite.rect.x - self.player.sprite.rect.x)**2 + (sprite.rect.y - self.player.sprite.rect.y)**2) > self.bullet_far_kill_range:
+                    sprite.kill()
+
+    def stop_bullets_kill(self, amount = 10):
+        if len(self.bullet_sprite.sprites())>amount:
+            for sprite in self.bullet_sprite.sprites():
+                if len(self.bullet_sprite.sprites())<=amount:
+                    break
+                if sprite.direction.magnitude() == 0:
                     sprite.kill()
 
     def get_player_on_ground(self):
@@ -168,26 +178,12 @@ class Level:
         if not self.player.sprite:
             self.setup_level(self.level_data, True) # keep body
 
-    def player_over_ground(self):
-        if self.player.sprite:
-            if self.player.sprite.rect.centery > self.display_surface.get_height():
-                self.player.sprite.direction.y = 0
-                self.player.sprite.rect.y -= 1000
-                # self.setup_level(self.level_data) # keep body
-
-            # X border
-            # if self.player.sprite.rect.centerx > self.display_surface.get_width() * 2:
-            #     self.player.sprite.direction.x = 0
-            #     self.player.sprite.rect.x = self.display_surface.get_width()
-            # if self.player.sprite.rect.centerx < -100:
-            #     self.player.sprite.direction.x = 0
-            #     self.player.sprite.rect.x = 0
-
     def run(self):
         # self.less_bullet()
         self.no_player()
-        self.less_bullet(50)
-        self.far_bullets_kill(0)
+        self.less_bullet(self.max_bullet_in_map)
+        self.stop_bullets_kill(10)
+        # self.far_bullets_kill(10)
         if self.player.sprite:
             self.visible_sprites.custom_draw(self.player.sprite)
         else:
@@ -195,11 +191,12 @@ class Level:
         self.visible_sprites.update()
         self.get_player_on_ground()
         self.create_landing_dust()
-        self.player_over_ground()
 
         if self.player.sprite:
             debug(str(self.player.sprite.rect))
-            debug(str(pygame.mouse.get_pos()), 10, 60)
+            debug(str(pygame.mouse.get_pos()), 10, 30)
+            debug(str(self.player.sprite.health), 10, 50)
+            debug(str(len(self.bullet_sprite)), 10, 70)
 
 from settings import screen, screen_height, screen_width
 class YSortCameraGroup(pygame.sprite.Group):
