@@ -4,7 +4,7 @@ from level import Level
 
 # pygame setup
 pygame.init()
-pygame.display.set_icon(pygame.image.load('assets\icon\icon.png').convert_alpha())
+pygame.display.set_icon(pygame.image.load(resource_path('assets\icon\icon.png')).convert_alpha())
 pygame.display.set_caption('Gun Fight')
 clock = pygame.time.Clock()
 level = Level(level_data=level_map, surface=screen)
@@ -18,6 +18,9 @@ while True:
         elif event.type == pygame.KEYDOWN:
             if event.key == pygame.K_0:
                 crt_shader.change_shader()
+            if event.key == pygame.K_8:
+                crt_shader.fullscreen = not crt_shader.fullscreen
+                crt_shader.Full_screen(REAL_RES)
             if event.key == pygame.K_r:
                 level.setup_level(level.level_data, True)
             if event.key == pygame.K_m:

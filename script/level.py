@@ -32,6 +32,9 @@ class Level:
         self.player_on_ground = False
         self.setup_level(self.level_data)
 
+        # bullet
+        self.bullet_far_kill_range = 800
+
     def create_jump_or_run_particles(self, pos, type='run'):
         if not self.player.sprite.flip:
             pos -= pygame.math.Vector2(10, 5)
@@ -39,11 +42,12 @@ class Level:
             pos -= pygame.math.Vector2(-10, 5)
         ParticleEffect(pos, [self.visible_sprites, self.dust_sprite], type)
 
-    def create_bullet(self, pos, type=None, direction=pygame.math.Vector2(0, 0), speed = 0.1):
-        if not self.player.sprite.flip:
-            pos -= pygame.math.Vector2(10, 5)
-        else:
-            pos -= pygame.math.Vector2(-10, 5)
+    def create_bullet(self, pos=pygame.math.Vector2(), type=None, direction=pygame.math.Vector2(0, 0), speed = 0.1, user=None):
+        if user:
+            if not user.flip:
+                pos -= pygame.math.Vector2(10, 5)
+            else:
+                pos -= pygame.math.Vector2(-10, 5)
         if type:
             Bullet(pos, [self.visible_sprites, 
                         self.bullet_sprite,
@@ -52,7 +56,8 @@ class Level:
                         type, 
                         direction,
                         speed,
-                        self.create_blood_effect)
+                        self.create_blood_effect,
+                        user)
         else:
             Bullet(pos, [self.visible_sprites, 
                         self.bullet_sprite,
@@ -60,7 +65,8 @@ class Level:
                         self.obstacle_sprites,
                         direction = direction,
                         speed = speed,
-                        create_blood_effect = self.create_blood_effect)
+                        create_blood_effect = self.create_blood_effect,
+                        user=user)
 
 
     def create_blood_effect(self, pos, type='blood'):
@@ -78,7 +84,7 @@ class Level:
             for sprite in self.bullet_sprite.sprites():
                 if len(self.bullet_sprite.sprites())<=amount:
                     break
-                if math.sqrt((sprite.rect.x - self.player.sprite.rect.x)**2 + (sprite.rect.y - self.player.sprite.rect.y)**2) > 650:
+                if math.sqrt((sprite.rect.x - self.player.sprite.rect.x)**2 + (sprite.rect.y - self.player.sprite.rect.y)**2) > self.bullet_far_kill_range:
                     sprite.kill()
 
     def get_player_on_ground(self):
@@ -146,13 +152,17 @@ class Level:
     def create_weapon(self, user, type=None, target=None):
         if type:
             return Weapon([self.visible_sprites],
+                            self.obstacle_sprites,
                             user, 
                             self.player.sprite,
-                            type = type)
+                            type = type,
+                            create_blood_effect = self.create_blood_effect)
         else:
             return Weapon([self.visible_sprites],
+                            self.obstacle_sprites,
                             user, 
-                            self.player.sprite)
+                            self.player.sprite,
+                            create_blood_effect = self.create_blood_effect)
 
     def no_player(self):
         if not self.player.sprite:

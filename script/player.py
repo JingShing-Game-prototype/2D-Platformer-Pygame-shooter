@@ -1,5 +1,4 @@
 import pygame
-from random import randint
 from entity import Entity
 
 class Player(Entity):
@@ -23,8 +22,13 @@ class Player(Entity):
         self.obstacle_sprites = obstacle_sprites
 
         # bullet
+        self.can_switch_weapon = True
+        self.switch_weapon_time = None
+        self.switch_weapon_cd = 500
+        self.weapon_index = 0
+        self.weapon_list = ['bullet', 'ak74', 'sword']
         self.create_weapon = create_weapon
-        self.weapon = self.create_weapon(user=self, type='bullet')
+        self.weapon = self.create_weapon(user=self, type=self.weapon_list[self.weapon_index])
 
     def import_character_assets(self):
         self.animations = {
@@ -86,10 +90,28 @@ class Player(Entity):
             self.create_jump_or_run_particles(self.rect.midbottom, 'jump')
 
         if keys[pygame.K_f] or mouse[0]:
-            self.bullet_shoot(mode='mouse')
+            self.bullet_shoot()
+        if mouse[2]:
+            self.melee_attack()
+        elif keys[pygame.K_e]:
+            self.switch_weapon()
+
+    def switch_weapon(self):
+        if self.weapon and self.can_switch_weapon:
+            self.can_switch_weapon = False
+            self.switch_weapon_time = pygame.time.get_ticks()
+            self.weapon_index = (self.weapon_index + 1) % len(self.weapon_list)
+            self.weapon.__init__(user=self.weapon.user, obstacle_sprite = self.weapon.obstacle_sprite, groups=self.weapon.sprite_groups, target=self.weapon.target, type=self.weapon_list[self.weapon_index], create_blood_effect=self.weapon.create_blood_effect)
+
+    def cooldown(self):
+        now = pygame.time.get_ticks()
+        if not self.can_switch_weapon:
+            if now - self.switch_weapon_time > self.switch_weapon_cd:
+                self.can_switch_weapon = True
 
     def update(self):
         # self.debug_show_can_jump()
+        self.common_cooldown()
         self.cooldown()
         self.get_input()
         self.get_status()

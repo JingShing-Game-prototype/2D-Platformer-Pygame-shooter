@@ -1,5 +1,4 @@
 import pygame
-from random import randint
 from entity import Entity
 from settings import screen_width
 
@@ -25,6 +24,7 @@ class Enemy(Entity):
         self.defense = False
         self.create_weapon = create_weapon
         self.weapon = self.create_weapon(user=self, target=self.target)
+        self.attack_mode = 'range' # range or melee
 
     def animate(self):
         self.image = self.or_image.copy() if not self.flip else pygame.transform.flip(self.image, True, False)
@@ -38,7 +38,10 @@ class Enemy(Entity):
 
     def AI_attack(self):
         if self.defense:
-            self.bullet_shoot()
+            if self.attack_mode == 'range':
+                self.bullet_shoot()
+            elif self.attack_mode == 'melee':
+                self.melee_attack()
 
     def target_distance_and_direction(self, target):
         # get player to enemy distance and direction
@@ -60,11 +63,15 @@ class Enemy(Entity):
             self.defense = True
         # elif distance > 500 and not(self.target.using_weapon):
         #     self.defense = False
-        if self.defense and distance > 100:
-            self.direction.x = direction.x
+        if self.defense:
             if self.on_ground:
                 self.jump()
-                # self.direction.y = direction.y * 2 + self.gravity
+            if distance > 300:
+                # self.direction.x = direction.x
+                self.attack_mode = 'range'
+            elif distance < 200:
+                self.direction.x = direction.x
+                self.attack_mode = 'melee'
         else:
             self.direction.x = 0
 
@@ -76,7 +83,7 @@ class Enemy(Entity):
         #     self.jump()
 
     def update(self):
-        self.cooldown()
+        self.common_cooldown()
         self.get_status()
         self.animate()
         self.run_dust_animation()

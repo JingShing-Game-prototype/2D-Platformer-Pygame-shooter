@@ -1,26 +1,41 @@
 import pygame
-from settings import screen_height, screen_width
+from settings import screen_height, screen_width, resource_path
 import numpy
+import os
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, obstacle_sprites, type='ak_bullet', direction=pygame.math.Vector2(0, 0), speed = 0.1, create_blood_effect=None):
+    def __init__(self, pos, groups, obstacle_sprites, type='ak74', direction=pygame.math.Vector2(0, 0), speed = 0.1, create_blood_effect=None, user=None):
         super().__init__(groups)
         self.object_type = 'bullet'
         self.type = type
+        self.user = user
         self.obstacle_sprites = obstacle_sprites
         self.direction = direction
         self.create_blood_effect = create_blood_effect
         self.flip = True if self.direction.x < 0 else False
         self.angle = self.adjust_angle()
-        if self.type == 'ak_bullet':
-            self.image = pygame.image.load('assets\graphics\weapon\\bullet_s.png').convert_alpha()
+        self.get_self_type_info()
+        self.rect = self.image.get_rect(center=pos)
+        self.speed = speed
+
+        # bullet damage and health
+        self.health = 10
+        self.damage = 1
+
+    def get_self_type_info(self):
+        if os.path.exists('assets/graphics/weapon/' + self.type + '.png'):
+            self.image = pygame.image.load(resource_path('assets/graphics/weapon/' + self.type + '.png')).convert_alpha()
+        else:
+            self.image = pygame.image.load(resource_path('assets/graphics/weapon/ak74.png')).convert_alpha()
+        if self.type == 'bullet':
             self.image = pygame.transform.scale(self.image, (16, 8))
+        if self.type == 'ak74':
+            self.image = pygame.transform.scale(self.image, (80, 24))
+        if self.type == 'sword':
+            self.image = pygame.transform.scale(self.image, (100, 30))
         self.image = pygame.transform.rotate(self.image, self.angle)
         if self.flip:
             self.image = pygame.transform.flip(self.image, True, False)
-        self.rect = self.image.get_rect(center=pos)
-        self.speed = speed
-        self.damage = 1
 
     def adjust_angle(self):
         x = self.direction.x
@@ -44,7 +59,21 @@ class Bullet(pygame.sprite.Sprite):
                     target.get_damage(self.damage)
                 if hasattr(target, 'defense'):
                     target.defense = True
-            self.kill() # kill bullet when bullet bump
+            else:
+                if hasattr(target, 'health'):
+                    target.get_damage(self.damage)
+                    # self.get_damage(target.damage)
+                else:
+                    target.kill()
+
+            # if target.object_type == 'bullet':
+            #     target.kill()
+            #     self.kill() # kill bullet when bullet bump
+
+    def get_damage(self, value):
+        self.health -= value
+        if self.health <= 0:
+            self.kill()
 
     def no_move(self):
         self.direction.x = 0
@@ -54,6 +83,9 @@ class Bullet(pygame.sprite.Sprite):
         for sprite in self.obstacle_sprites:
             if sprite == self:
                 pass
+            elif sprite == self.user:
+                # keep bullet hit self
+                pass
             elif sprite.object_type == 'player':
                 if sprite.rect.colliderect(self.rect):
                     self.touch_target(sprite)
@@ -62,8 +94,9 @@ class Bullet(pygame.sprite.Sprite):
                     self.touch_target(sprite)
             elif sprite.object_type == 'bullet':
                 if sprite.rect.colliderect(self.rect):
-                    if sprite.direction.magnitude() != 0:
-                        self.touch_target(sprite)
+                    if sprite.user != self.user:
+                        if sprite.direction.magnitude() != 0:
+                            self.touch_target(sprite)
             else:
                 if direction == 'horizontal':
                     if sprite.rect.colliderect(self.rect):

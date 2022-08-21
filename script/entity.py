@@ -1,5 +1,6 @@
 import pygame
 from random import randint
+from settings import weapon_bullet_type, resource_path
 
 class Entity(pygame.sprite.Sprite):
     def __init__(self, groups):
@@ -40,8 +41,13 @@ class Entity(pygame.sprite.Sprite):
         self.shoot_time = None
         self.shoot_cooldown = 100
         self.shoot_times = 1
-        self.shoot_se = pygame.mixer.Sound('assets\\audio\SE\Gunshot_SE.mp3')
+        self.shoot_se = pygame.mixer.Sound(resource_path('assets\\audio\SE\Gunshot_SE.mp3'))
         self.shoot_se.set_volume(0.01)
+
+        # melee attack
+        self.can_melee = True
+        self.melee_attack_time = None
+        self.melee_attack_cd = 500
 
     def run_dust_animation(self):
         if self.status == 'run' and self.on_ground:
@@ -52,64 +58,50 @@ class Entity(pygame.sprite.Sprite):
             # pos = self.rect.bottomleft - pygame.math.Vector2(6, 10) if not self.flip else self.rect.bottomright - pygame.math.Vector2(6, 10)
             self.create_jump_or_run_particles(self.rect.midbottom, 'run')
 
-    def bullet_shoot(self, mode='key'):
-        if self.object_type == 'player':
-            if self.can_shoot:
-                self.shoot_se.play()
-                self.using_weapon = True
-                self.using_weapon_time = pygame.time.get_ticks()
-                if mode == 'mouse':
-                    mouse_pos = pygame.mouse.get_pos()
-                    # to make mouse accurate
-                    user_pos = self.offset_pos
-                    x = mouse_pos[0] - user_pos[0]
-                    y = mouse_pos[1] - user_pos[1]
-                    if x < 0:
-                        self.flip = True
-                    else:
-                        self.flip = False
-                    
-                    # gun shot point pos
-                    pos = self.weapon.gun_shot_pos
+    def melee_attack(self):
+        if self.can_melee and self.weapon:
+            self.can_melee = False
+            self.melee_attack_time = pygame.time.get_ticks()
+            self.weapon.melee_attack = True
 
-                    for i in range(self.shoot_times):
-                        direction = pygame.math.Vector2(x, y + randint(-self.aim_rate, self.aim_rate))
-                        self.create_bullet(pos=pos, direction = direction, speed = self.bullet_speed)
-
-                elif mode == 'key':
-                    if not self.flip:
-                        pos = self.rect.midright + pygame.math.Vector2(10, 0)
-                        direction = pygame.math.Vector2(1, 0)
-                    else:
-                        pos = self.rect.midleft + pygame.math.Vector2(-10, 0)
-                        direction = pygame.math.Vector2(-1, 0)
-                    self.create_bullet(pos=pos, direction = direction, speed = self.bullet_speed)
-
-                self.shoot_time = pygame.time.get_ticks()
-                self.can_shoot = False
-                # self.using_weapon = False
-        elif self.object_type == 'enemy':
-            if self.can_shoot and self.weapon:
-                self.shoot_se.play()
-                self.using_weapon = True
+    def bullet_shoot(self):
+        if self.can_shoot and self.weapon and not self.weapon.melee_attack:
+            if self.object_type == 'player':
+                mouse_pos = pygame.mouse.get_pos()
+                # to make mouse accurate
+                user_pos = self.offset_pos
+                x = mouse_pos[0] - user_pos[0]
+                y = mouse_pos[1] - user_pos[1]
+            elif self.object_type == 'enemy':
                 target_pos = self.target.rect
                 user_pos = self.rect
                 x = target_pos[0] - user_pos[0]
                 y = target_pos[1] - user_pos[1]
-                if x < 0:
-                    self.flip = True
-                else:
-                    self.flip = False
 
-                pos = self.weapon.gun_shot_pos
-                    
-                for i in range(self.shoot_times):
-                    direction = pygame.math.Vector2(x, y + randint(-self.aim_rate, self.aim_rate))
-                    self.create_bullet(pos=pos, direction = direction, speed = self.bullet_speed)
+            self.shoot_se.play()
+            self.using_weapon = True
+            self.using_weapon_time = pygame.time.get_ticks()
+            if x < 0:
+                self.flip = True
+            else:
+                self.flip = False
+            
+            # gun shot point pos
+            pos = self.weapon.gun_shot_pos
+            if not pos:
+                pos = pygame.math.Vector2()
+            
+            if self.weapon.type in weapon_bullet_type:
+                bullet_type = weapon_bullet_type[self.weapon.type]
+            else:
+                bullet_type = None
 
-                self.shoot_time = pygame.time.get_ticks()
-                self.can_shoot = False
-                self.using_weapon = False
+            for i in range(self.shoot_times):
+                direction = pygame.math.Vector2(x, y + randint(-self.aim_rate, self.aim_rate))
+                self.create_bullet(pos=pos, direction = direction, speed = self.bullet_speed, user=self, type = bullet_type)
+
+            self.shoot_time = pygame.time.get_ticks()
+            self.can_shoot = False
 
     def get_status(self):
         if self.direction.y < 0:
@@ -180,7 +172,7 @@ class Entity(pygame.sprite.Sprite):
             if self.on_ceiling and self.direction.y > 0.1:
                 self.on_ceiling = False
 
-    def cooldown(self):
+    def common_cooldown(self):
         now = pygame.time.get_ticks()
         if not self.can_shoot:
             if now - self.shoot_time > self.shoot_cooldown:
@@ -188,6 +180,9 @@ class Entity(pygame.sprite.Sprite):
         if self.using_weapon:
             if now - self.using_weapon_time > self.using_weapon_cd:
                 self.using_weapon = False
+        if not self.can_melee:
+            if now - self.melee_attack_time > self.melee_attack_cd:
+                self.can_melee = True
 
     def get_damage(self, value):
         self.health -= value

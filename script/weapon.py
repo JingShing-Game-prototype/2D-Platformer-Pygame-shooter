@@ -1,27 +1,62 @@
 import pygame, numpy
 from random import randint
+from settings import resource_path, weapon_data
+import os
+
 class Weapon(pygame.sprite.Sprite):
-    def __init__(self, groups, user, target=None, type='ak74'):
+    def __init__(self, groups, obstacle_sprite, user, target=None, type='ak74', create_blood_effect=None):
         super().__init__(groups)
+        self.obstacle_sprite = obstacle_sprite
+        self.create_blood_effect = create_blood_effect
+        self.sprite_groups = groups
         self.object_type = 'weapon'
         self.type = type
-        if self.type == 'ak74':
-            self.or_image = pygame.image.load('assets\graphics\weapon\Ak74_rot.png').convert_alpha()
-            self.or_image = pygame.transform.scale(self.or_image, (96, 32))
-        if self.type == 'bullet':
-            self.or_image = pygame.image.load('assets\graphics\weapon\\bullet_s.png').convert_alpha()
-            self.or_image = pygame.transform.scale(self.or_image, (32, 16))
-            
-        # self.or_image = pygame.Surface((48, 16))
-        self.color = (255, 0, 0)
-        # self.or_image.fill(self.color)
+        self.attack_type = 'ranged'
         self.user = user
-        self.target = target
-        self.rect = self.or_image.get_rect(bottomright=self.user.rect.center)
-        self.image = self.or_image.copy()
+            
+        # melee part
+        self.melee_attack = False
+        self.melee_damage = 3
+        self.melee_attack_direction = 1
+        # 1 means counter clockwise, -1 means clockwise
+        self.melee_angle_speed = 5
+        # melee attack speed
+        self.melee_angle = 0
+        # count melee ratate angle
+        self.melee_angle_range = 90
+        # melee rotate range
+
+        # gun info
         self.gun_shot_pos = None
         self.hold_legth = 0
         self.weapon_swing_rate = 10
+        self.angle = 0
+
+        self.target = target
+        self.get_self_type_info()
+        self.rect = self.or_image.get_rect(bottomright=self.user.rect.center)
+        self.image = self.or_image.copy()
+
+
+    def get_self_type_info(self):
+        if os.path.exists('assets/graphics/weapon/' + self.type + '.png'):
+            self.or_image = pygame.image.load(resource_path('assets/graphics/weapon/' + self.type + '.png')).convert_alpha()
+        else:
+            self.or_image = pygame.image.load(resource_path('assets/graphics/weapon/ak74.png')).convert_alpha()
+        self.or_image = pygame.transform.scale(self.or_image, weapon_data[self.type]['size'])
+        if 'melee_angle_speed' in weapon_data[self.type]:
+            self.melee_angle_speed = weapon_data[self.type]['melee_angle_speed']
+        else:
+            self.melee_angle_speed = 5
+        if 'melee_attack_cd' in weapon_data[self.type]:
+            self.user.melee_attack_cd = weapon_data[self.type]['melee_attack_cd']
+        else:
+            self.user.melee_attack_cd = 500
+        if 'melee_attack_direction' in weapon_data[self.type]:
+            self.melee_attack_direction = weapon_data[self.type]['melee_attack_direction']
+        else:
+            self.melee_attack_direction = 1
+
 
     def adjust_pos(self):
         if self.user.object_type == 'player':
@@ -29,50 +64,150 @@ class Weapon(pygame.sprite.Sprite):
             user_pos = self.user.offset_pos
             x = mouse_pos[0] - user_pos[0]
             y = mouse_pos[1] - user_pos[1]
-            self.user.flip = True if x < 0 else False
-            if x!=0 and y!=0:
-                angle = numpy.arctan(y/x) * 180 / 3.14
-                if self.user.using_weapon:
-                    angle += randint(-self.weapon_swing_rate, self.weapon_swing_rate)
-                if not self.user.flip:
-                    angle = -angle
-            elif x==0:
-                if y < 0:
-                    angle = 90
-                elif y > 0:
-                    angle = 270
-            else:
-                angle = 0
-            self.image = pygame.transform.rotate(self.or_image, angle)
-            # hold gun pos
-            if self.user.flip:
-                self.image = pygame.transform.flip(self.image, True, False)
-                self.rect = self.image.get_rect(midright=self.user.rect.midleft + pygame.math.Vector2(-self.hold_legth, 0))
-            else:
-                self.rect = self.image.get_rect(midleft=self.user.rect.midright + pygame.math.Vector2(self.hold_legth, 0))
-            
-            # gun shot point pos
-            if self.user.flip:
-                gun_shot_x_rate = 1
-                x_bonus = 0
-            else:
-                gun_shot_x_rate = -1
-                x_bonus = 0
-            if x == 0:
-                gun_shot_x_rate = 0
-                x_bonus = 0
-            if y > 0:
-                gun_shot_y_rate = -1
-                y_bonus = -10
-            elif y < 0:
-                gun_shot_y_rate = 1
-                y_bonus = 10
-            elif y == 0:
-                gun_shot_y_rate = 0
-                y_bonus = 0
-            self.gun_shot_pos = self.rect.center + pygame.math.Vector2(-self.image.get_width()/2 * gun_shot_x_rate + x_bonus, -self.image.get_height()/2 * gun_shot_y_rate + y_bonus)
 
         elif self.user.object_type == 'enemy':
+            if self.target:
+                target_pos = self.target.rect
+                user_pos = self.user.rect
+                x = target_pos[0] - user_pos[0]
+                y = target_pos[1] - user_pos[1]
+        
+        self.user.flip = True if x < 0 else False
+        if x!=0 and y!=0:
+            angle = numpy.arctan(y/x) * 180 / 3.14
+            if self.user.using_weapon:
+                angle += randint(-self.weapon_swing_rate, self.weapon_swing_rate)
+            if not self.user.flip:
+                angle = -angle
+        elif x==0:
+            if y < 0:
+                angle = 90
+            elif y > 0:
+                angle = 270
+        else:
+            angle = 0
+        self.angle = angle
+        self.image = pygame.transform.rotate(self.or_image, angle)
+
+        x_offset, y_offset = self.multi_direction_spot_offset('gun')
+
+        # hold gun pos
+        if self.user.flip:
+            self.image = pygame.transform.flip(self.image, True, False)
+            self.rect = self.image.get_rect(midright=self.user.rect.midleft + pygame.math.Vector2(-self.hold_legth - x_offset, y_offset))
+        else:
+            self.rect = self.image.get_rect(midleft=self.user.rect.midright + pygame.math.Vector2(self.hold_legth + x_offset, y_offset))
+        
+        # gun shot point
+        x_bonus, y_bonus, gun_shot_x_rate, gun_shot_y_rate = self.get_gun_shot_point_pos_offset(x, y)
+        self.gun_shot_pos = self.rect.center + pygame.math.Vector2(-self.image.get_width()/2 * gun_shot_x_rate + x_bonus, -self.image.get_height()/2 * gun_shot_y_rate + y_bonus)
+
+        # self.gun_shot_pos = self.rect.center - 3 * pygame.math.Vector2(-self.image.get_width()/2 * gun_shot_x_rate + x_bonus, -self.image.get_height()/2 * gun_shot_y_rate + y_bonus)
+        # shoot from back
+    def get_gun_shot_point_pos_offset(self, x, y):
+        # gun shot point pos
+        if self.user.flip:
+            gun_shot_x_rate = 1
+            x_bonus = 0
+        else:
+            gun_shot_x_rate = -1
+            x_bonus = 0
+        if x == 0:
+            gun_shot_x_rate = 0
+            x_bonus = 0
+
+        if y > 0:
+            gun_shot_y_rate = -1
+            y_bonus = -10
+        elif y < 0:
+            gun_shot_y_rate = 1
+            y_bonus = 10
+        elif y == 0:
+            gun_shot_y_rate = 0
+            y_bonus = 0
+        return x_bonus, y_bonus, gun_shot_x_rate, gun_shot_y_rate
+
+
+    def multi_direction_spot_offset(self, mode='gun'):
+        # multi angle fixed
+        if mode == 'gun':
+            if self.angle > 70:
+                # up pos
+                y_offset = -30
+                x_offset = -30
+            elif self.angle > 50:
+                y_offset = -30
+                x_offset = 10
+            elif self.angle < -80:
+                # down pos
+                y_offset = 20
+                x_offset = -30
+            elif self.angle < -60:
+                # down pos
+                y_offset = 50
+                x_offset = -10
+            elif self.angle < -30:
+                # down pos
+                y_offset = 20
+                x_offset = 5
+            else:
+                # mid pos
+                y_offset = 0
+                x_offset = 10
+        elif mode == 'melee':
+            if self.angle > 50:
+                y_offset = -40
+                x_offset = -20
+            elif self.angle > 30:
+                # up pos
+                y_offset = -50
+                x_offset = 0
+            elif self.angle < 0:
+                # down pos
+                y_offset = 50
+                x_offset = 20
+            else:
+                # mid pos
+                y_offset = 0
+                x_offset = 30
+
+        return x_offset, y_offset
+
+    def stick_on_user(self):
+        self.rect = self.image.get_rect(center=self.user.rect.center)
+
+    def touch_entity(self, entity):
+        if entity.object_type != 'bullet':
+            self.create_blood_effect(self.rect.center)
+            if hasattr(entity, 'health'):
+                entity.get_damage(self.melee_damage)
+            if hasattr(entity, 'defense'):
+                entity.defense = True
+        else:
+            if hasattr(entity, 'health'):
+                entity.get_damage(self.melee_damage)
+            else:
+                entity.kill()
+
+    def detect_entity(self):
+        for sprite in self.obstacle_sprite:
+            if sprite == self:
+                pass
+            elif sprite.object_type == self.user.object_type:
+                pass
+            elif sprite.object_type == 'player':
+                if sprite.rect.colliderect(self.rect):
+                    self.touch_entity(sprite)
+            elif sprite.object_type == 'enemy':
+                if sprite.rect.colliderect(self.rect):
+                    self.touch_entity(sprite)
+            elif sprite.object_type == 'bullet':
+                if sprite.rect.colliderect(self.rect):
+                    if sprite.direction.magnitude() != 0:
+                        self.touch_entity(sprite)
+
+    def melee_attack_animate(self):
+        if self.user.object_type == 'enemy':
             if self.target:
                 target_pos = self.target.rect
                 user_pos = self.user.rect
@@ -89,38 +224,27 @@ class Weapon(pygame.sprite.Sprite):
                     angle = 90
                 else:
                     angle = 0
-                self.image = pygame.transform.rotate(self.or_image, angle)
-                if self.user.flip:
-                    self.image = pygame.transform.flip(self.image, True, False)
-                    self.rect = self.image.get_rect(midright=self.user.rect.midleft + pygame.math.Vector2(-self.hold_legth, 0))
-                else:
-                    self.rect = self.image.get_rect(midleft=self.user.rect.midright + pygame.math.Vector2(self.hold_legth, 0))
-                
-                if self.user.flip:
-                    gun_shot_x_rate = 1
-                    x_bonus = 0
-                else:
-                    gun_shot_x_rate = -1
-                    x_bonus = 0
-                if x == 0:
-                    gun_shot_x_rate = 0
-                    x_bonus = 0
+                self.angle = angle
 
-                if y > 0:
-                    gun_shot_y_rate = -1
-                    y_bonus = -10
-                elif y < 0:
-                    gun_shot_y_rate = 1
-                    y_bonus = 10
-                elif y == 0:
-                    gun_shot_y_rate = 0
-                    y_bonus = 0
-                self.gun_shot_pos = self.rect.center + pygame.math.Vector2(-self.image.get_width()/2 * gun_shot_x_rate + x_bonus, -self.image.get_height()/2 * gun_shot_y_rate + y_bonus)
+        self.melee_angle += self.melee_angle_speed
+        if self.melee_angle > self.melee_angle_range:
+            self.melee_angle = 0
+            self.melee_attack = False
+        else:
+            # self.image = pygame.transform.rotate(self.image, self.melee_angle * self.melee_attack_direction)
+            self.image = pygame.transform.rotate(self.or_image, self.angle + self.melee_angle * self.melee_attack_direction)
+            
+            x_offset, y_offset = self.multi_direction_spot_offset('melee')
 
-
-    def stick_on_user(self):
-        self.rect = self.image.get_rect(center=self.user.rect.center)
+            if self.user.flip:
+                self.image = pygame.transform.flip(self.image, True, False)
+                self.rect = self.image.get_rect(midright=self.user.rect.center + pygame.math.Vector2(-x_offset, y_offset))
+            else:
+                self.rect = self.image.get_rect(midleft=self.user.rect.center + pygame.math.Vector2(x_offset, y_offset))
 
     def update(self):
-        self.adjust_pos()
-        # self.stick_on_user()
+        if self.melee_attack:
+            self.melee_attack_animate()
+            self.detect_entity()
+        else:
+            self.adjust_pos()
