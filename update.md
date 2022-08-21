@@ -31,30 +31,38 @@ Enemy has a simple ai to aim player. And need to be trigger.
 * Add resource path to each load to make sure exe will success.
 * bullet has health now.
 * Add a dict to collect weapon data
+* Add shield
+* Q can switch last weapon, E can switch next weapon.
+* Add map border
+* Add invinsible time
+* Dynamic bullet amount in map
 
 ## Up to do
 
-- [ ] background particle
+- [ ] background particle -> reference sword rain
 - [ ] bullet across wall hack
-- [ ] shield
 - [ ] skill
-- [ ] Drop item
-- [ ] Ammo limit
-- [ ] UI
+- [ ] Drop item -> new class?
+- [ ] Ammo limit -> do it with UI
+- [ ] UI -> HP, Enemy info , Ammo, Item Info, Map info ...
+- [ ] Menu
 - [ ] enemy body flesh explode effect
-- [ ] more weapon
+- [ ] more weapon -> need data dict and file to edit
 - [ ] switch map system
-- [ ] networking
+- [ ] networking -> socket?
 - [ ] Improve AI move
-- [ ] Change Character sprite
+- [ ] Change Character sprite -> I hate spritesheet
 - [ ] Add crouch system
-- [ ] Parkour system
+- [ ] Parkour system -> wall jump or something
 - [ ] Boss Fight
 - [ ] Random mode
 - [ ] Store System
 
 ## Finish
 
-- [x] melee weapon and melee attack system
+22/8/21
 
+- [x] melee weapon and melee attack system
 - [x] switch weapon
+- [x] shield
+
