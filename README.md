@@ -1,22 +1,33 @@
-# 2D-Platformer-Pygame-shooter
-A pygame platformer shooter.
+## User Manual
+A 2D platformer shooter.
+### keyboard & mouse
 
-w, a, s, d to move
-t, y, g, h to move camera
+* w, a, s, d to move t, y, g, h to move camera
+* f to shoot in front of character
+* m to switch mouse control camera
+* l to open test camera box
+* o to active enemy hatred
+* mouse to aim
+* left mouse key to shoot
+* right mouse key to melee attack
+* 0 to switch shader
+* 9 to resize camera
+* \+ , - to scale camera
+* T, Y, G, H to move camera
+* 8 to fullscreen 
 
-f to shoot in front of character
+### Joystick
 
-m to switch mouse control camera
-
-l to open test camera box
-
-o to active enemy hatr
-
-mouse to aim and shoot
-
-use mouse scroll up and scroll down to shoot -> it's like use real gun trigger
-
-# Update
+* left joystick to move
+* dpad to move. also can move camera by activing camera mode.
+* left joystick button to active dpad camera mode.
+* right joystick to aim.(need to open aim mode first)
+* right joystick button to active aim mode.
+* A to jump.
+* Y, B to switch weapon.
+* RT to shoot.
+* LT to melee attack.
+* RB, LB to scale camera.
 
 ## Ver 0.1
 
@@ -91,6 +102,7 @@ Enemy has a simple ai to aim player. And need to be trigger.
   * seek_object_from_object_pool(self, object_type)
 * Update flesh move. Can add x direction by bullet hit.
 * Add particle to object pool.
+* Add joystick control.
 ## object pool format process
 
 1. Set used_groups to store groups and old_self function to load new info\
@@ -124,7 +136,6 @@ Enemy has a simple ai to aim player. And need to be trigger.
 - [ ] Boss Fight
 - [ ] Random mode
 - [ ] Store System -> need money or credit
-- [ ] xbox control
 
 ## Finish
 
@@ -141,3 +152,6 @@ Enemy has a simple ai to aim player. And need to be trigger.
 - [x] UI -> HP, Enemy info , Ammo, Item Info, Map info ...
 - [x] object pool to keep bullet and weapon.
 
+22/8/23
+
+- [x] xbox controller
