@@ -4,10 +4,12 @@ import numpy
 import os
 
 class Bullet(pygame.sprite.Sprite):
-    def __init__(self, pos, groups, obstacle_sprites, type='ak74', direction=pygame.math.Vector2(0, 0), speed = 0.1, create_blood_effect=None, user=None, across_wall=False):
+    def __init__(self, pos, groups, obstacle_sprites, type='ak74', direction=pygame.math.Vector2(0, 0), speed = 0.1, create_blood_effect=None, user=None, across_wall=False, move_to_object_pool=None):
         super().__init__(groups)
+        self.used_groups = groups
         self.object_type = 'bullet'
         self.across_wall = across_wall
+        self.move_to_object_pool = move_to_object_pool
         self.type = type
         self.user = user
         self.obstacle_sprites = obstacle_sprites
@@ -22,6 +24,22 @@ class Bullet(pygame.sprite.Sprite):
         # bullet damage and health
         self.health = 10
         self.damage = 30
+
+    def old_bullet(self, pos, direction, across_wall, type, user, speed):
+        self.across_wall = across_wall
+        self.type = type
+        self.user = user
+        self.direction = direction
+        self.flip = True if self.direction.x < 0 else False
+        self.angle = self.adjust_angle()
+        self.get_self_type_info()
+        self.rect = self.image.get_rect(center=pos)
+        self.speed = speed
+
+        # bullet damage and health
+        self.health = 10
+        self.damage = 30
+
 
     def get_self_type_info(self):
         if os.path.exists('assets/graphics/weapon/' + self.type + '.png'):
@@ -74,7 +92,7 @@ class Bullet(pygame.sprite.Sprite):
     def get_damage(self, value):
         self.health -= value
         if self.health <= 0:
-            self.kill()
+            self.move_to_object_pool(self)
 
     def no_move(self):
         self.direction.x = 0

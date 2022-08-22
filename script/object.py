@@ -27,7 +27,7 @@ class Object(pygame.sprite.Sprite):
 
         # movement
         self.direction = pygame.math.Vector2(0, 0)
-        self.or_speed = 8
+        self.or_speed = 3
         self.speed = self.or_speed
         self.or_gravity = 0.8
         self.gravity = self.or_gravity
@@ -57,10 +57,15 @@ class Object(pygame.sprite.Sprite):
         self.direction.y = 0
 
     def stop_on_ground(self):
-        if self.direction.y <= 0 and self.on_ground:
-            self.direction.x = 0
+        if self.on_ground and self.direction.y <= 0:
+            self.no_move()
 
     def move(self):
+        # if self.direction.magnitude() != 0:
+        #     # 0 can't be normalized. python will error.
+        #     self.direction = self.direction.normalize()
+        self.direction.x = min(self.direction.x, 3)
+        self.direction.x = max(self.direction.x, -3)
         self.rect.x += self.direction.x * self.speed
         self.collision('horizontal')
         self.apply_gravity()
@@ -82,6 +87,10 @@ class Object(pygame.sprite.Sprite):
 
     def collision(self, direction):
         for sprite in self.obstacle_sprites:
+            if sprite.object_type == 'bullet' and self.type == 'flesh':
+                # flesh got shot will knockback
+                if sprite.rect.colliderect(self.rect):
+                    self.direction.x += randint(-1, 1)
             if sprite == self:
                 pass
             elif sprite.object_type == 'entity':
@@ -123,7 +132,7 @@ class Object(pygame.sprite.Sprite):
         now = pygame.time.get_ticks()
         if self.exsist_duration > 0:
             if now - self.exsist_time > self.exsist_duration:
-                self.kill()
+                self.move_to_object_pool(self)
 
     def adjust_pos(self):
         # get angle rotate and image pos

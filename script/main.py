@@ -6,9 +6,6 @@ class Game:
     def __init__(self):
         # pygame setup
         pygame.init()
-        # game icon
-        pygame.display.set_icon(pygame.image.load(resource_path('assets\icon\icon.png')).convert_alpha())
-        pygame.display.set_caption('Gun Fight')
         self.clock = pygame.time.Clock()
         # self.level = Level(level_data=no_enemy_level_map, surface=screen)
         self.level = Level(level_data=level_map, surface=screen)

@@ -8,6 +8,7 @@ from bullet import Bullet
 from weapon import Weapon
 from enemy import Enemy
 from flesh import Flesh
+from ui import UI
 import math
 from debug import debug
 
@@ -31,6 +32,8 @@ class Level:
         self.enemy_sprite = pygame.sprite.Group()
         self.flesh_sprite = pygame.sprite.Group()
 
+        self.object_pool = pygame.sprite.Group()
+
         # dust
         self.player_on_ground = False
         self.setup_level(self.level_data)
@@ -39,20 +42,39 @@ class Level:
         self.max_bullet_in_map = 100
         self.bullet_far_kill_range = 800
 
+        # UI
+        self.ui = UI()
+
     def create_jump_or_run_particles(self, pos, type='run'):
         if not self.player.sprite.flip:
             pos -= pygame.math.Vector2(10, 5)
         else:
             pos -= pygame.math.Vector2(-10, 5)
-        ParticleEffect(pos, [self.visible_sprites, self.dust_sprite], type)
+            
+        old_particle = self.seek_object_from_object_pool('particle')
+        if old_particle:
+            self.take_from_object_pool(old_particle)
+            old_particle.old_particles(pos, type)
+        else:
+            ParticleEffect(pos, [self.visible_sprites, self.dust_sprite], type, move_to_object_pool=self.move_to_object_pool)
 
-    def create_bullet(self, pos=pygame.math.Vector2(), type=None, direction=pygame.math.Vector2(0, 0), speed = 0.1, user=None, across_wall=False):
+    def create_bullet(self, pos=pygame.math.Vector2(), type='ak74', direction=pygame.math.Vector2(0, 0), speed = 0.1, user=None, across_wall=False):
         if user:
             if not user.flip:
                 pos -= pygame.math.Vector2(10, 5)
             else:
                 pos -= pygame.math.Vector2(-10, 5)
-        if type:
+        old_bullet = self.seek_object_from_object_pool('bullet')
+        if old_bullet:
+            self.take_from_object_pool(old_bullet)
+            # print(self.object_pool)
+            old_bullet.old_bullet(pos=pos, 
+            direction=direction, 
+            across_wall=across_wall, 
+            type=type, 
+            user=user, 
+            speed=speed)
+        else:
             Bullet(pos, [self.visible_sprites, 
                         self.bullet_sprite,
                         self.obstacle_sprites], 
@@ -62,35 +84,56 @@ class Level:
                         speed,
                         self.create_blood_effect,
                         user,
-                        across_wall)
-        else:
-            Bullet(pos, [self.visible_sprites, 
-                        self.bullet_sprite,
-                        self.obstacle_sprites], 
-                        self.obstacle_sprites,
-                        direction = direction,
-                        speed = speed,
-                        create_blood_effect = self.create_blood_effect,
-                        user=user,
-                        across_wall=across_wall)
+                        across_wall,
+                        move_to_object_pool=self.move_to_object_pool)
+
+    # object pool management
+    def move_to_object_pool(self, object):
+        for group in object.used_groups:
+            group.remove(object)
+        self.object_pool.add(object)
+
+    def take_from_object_pool(self, object):
+        self.object_pool.remove(object)
+        for group in object.used_groups:
+            group.add(object)
+
+    def seek_object_from_object_pool(self, object_type):
+        object = None
+        for item in self.object_pool.sprites():
+            if item.object_type == object_type:
+                return item
+        return object
 
     def create_blood_effect(self, pos, type='blood'):
-        ParticleEffect(pos, [self.visible_sprites, self.dust_sprite], type)
+        old_particle = self.seek_object_from_object_pool('particle')
+        if old_particle:
+            self.take_from_object_pool(old_particle)
+            old_particle.old_particles(pos, type)
+        else:
+            ParticleEffect(pos, [self.visible_sprites, self.dust_sprite], type, move_to_object_pool=self.move_to_object_pool)
 
     def create_flesh(self, pos):
         direction = pygame.math.Vector2(randint(-10, 10), randint(5, 10))
-        Flesh(pos=pos, 
-            groups=[self.visible_sprites, 
-            self.flesh_sprite], 
-            obstacle_sprites=self.obstacle_sprites, 
-            direction=direction)
+        old_flesh = self.seek_object_from_object_pool('object')
+        if old_flesh:
+            self.take_from_object_pool(old_flesh)
+            old_flesh.old_flesh(pos=pos, direction=direction)
+        else:
+            Flesh(pos=pos, 
+                groups=[self.visible_sprites, 
+                self.flesh_sprite], 
+                obstacle_sprites=self.obstacle_sprites, 
+                direction=direction,
+                move_to_object_pool=self.move_to_object_pool)
 
     def less_bullet(self, amount = 50):
         if len(self.bullet_sprite.sprites())>amount:
             for sprite in self.bullet_sprite.sprites():
                 if len(self.bullet_sprite.sprites())<=amount:
                     break
-                sprite.kill()
+                # sprite.kill()
+                self.move_to_object_pool(sprite)
 
     def far_bullets_kill(self, amount = 50):
         if len(self.bullet_sprite.sprites())>amount:
@@ -98,15 +141,17 @@ class Level:
                 if len(self.bullet_sprite.sprites())<=amount:
                     break
                 if math.sqrt((sprite.rect.x - self.player.sprite.rect.x)**2 + (sprite.rect.y - self.player.sprite.rect.y)**2) > self.bullet_far_kill_range:
-                    sprite.kill()
+                    # sprite.kill()
+                    self.move_to_object_pool(sprite)
 
     def stop_bullets_kill(self, amount = 10):
         if len(self.bullet_sprite.sprites())>amount:
             for sprite in self.bullet_sprite.sprites():
                 if len(self.bullet_sprite.sprites())<=amount:
                     break
-                if sprite.direction.magnitude() == 0:
-                    sprite.kill()
+                if sprite.direction.magnitude() == 0:                    
+                    # sprite.kill()
+                    self.move_to_object_pool(sprite)
 
     def get_player_on_ground(self):
         if self.player.sprite:
@@ -116,10 +161,17 @@ class Level:
         if self.player.sprite:
             if not self.player_on_ground and self.player.sprite.on_ground and not self.dust_sprite.sprites():
                 offset = pygame.math.Vector2(10, 15) if not self.player.sprite.flip else pygame.math.Vector2(-10, 15)
-                ParticleEffect(self.player.sprite.rect.midbottom - offset, 
-                [self.visible_sprites, 
-                self.dust_sprite],
-                'landing')
+                old_particle = self.seek_object_from_object_pool('particle')
+                pos = self.player.sprite.rect.midbottom - offset
+                if old_particle:
+                    self.take_from_object_pool(old_particle)
+                    old_particle.old_particles(pos, type)
+                else:
+                    ParticleEffect(pos, 
+                    [self.visible_sprites, 
+                    self.dust_sprite],
+                    'landing',
+                    move_to_object_pool=self.move_to_object_pool)
 
     def setup_level(self, layout, reset = False):
         if reset:            
@@ -199,6 +251,7 @@ class Level:
         # self.far_bullets_kill(10)
         if self.player.sprite:
             self.visible_sprites.custom_draw(self.player.sprite)
+            self.ui.display(player = self.player.sprite)
         else:
             self.visible_sprites.custom_draw(self.enemy_sprite.sprites()[0])
         self.visible_sprites.update()
@@ -206,10 +259,10 @@ class Level:
         self.create_landing_dust()
 
         if self.player.sprite:
-            debug(str(self.player.sprite.rect))
-            debug(str(pygame.mouse.get_pos()), 10, 30)
-            debug(str(self.player.sprite.health), 10, 50)
-            debug(str(len(self.bullet_sprite)), 10, 70)
+            debug(str(self.player.sprite.rect), 10, 60)
+            debug(str(pygame.mouse.get_pos()), 10, 80)
+            debug(str(self.player.sprite.health), 10, 110)
+            debug(str(len(self.bullet_sprite)), 10, 130)
 
 from settings import screen, screen_height, screen_width
 class YSortCameraGroup(pygame.sprite.Group):

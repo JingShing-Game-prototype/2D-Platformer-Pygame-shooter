@@ -14,6 +14,12 @@ class Player(Entity):
         # fix mouse pos wrong
         self.offset_pos = self.rect
 
+        # UI
+        self.current_health = self.health
+        self.health_bar_length = self.or_health * 2
+        self.health_ratio = self.or_health / self.health_bar_length
+        self.health_change_speed = 0.15
+
         # particles
         self.create_jump_or_run_particles = create_jump_or_run_particles
         self.create_bullet = create_bullet

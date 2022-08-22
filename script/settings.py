@@ -52,6 +52,11 @@ REAL_RES = (1280, 720)
 # VIRTUAL_RES = (800, 600)
 # REAL_RES = (800, 600)
 pygame.display.set_mode(REAL_RES, pygame.DOUBLEBUF|pygame.OPENGL)
+
+# game icon
+pygame.display.set_icon(pygame.image.load(resource_path('assets\icon\icon.png')).convert_alpha())
+pygame.display.set_caption('Gun Fight')
+
 screen = pygame.Surface(VIRTUAL_RES).convert((255, 65280, 16711680, 0))
 crt_shader = Graphic_engine(screen=screen, style=2, VIRTUAL_RES=VIRTUAL_RES)
 
@@ -67,3 +72,29 @@ weapon_data = {
 	'sword':{'size':(120, 30), 'melee_angle_speed':10, 'melee_attack_cd':5, 'melee_attack_direction':1},
 	'shield':{'size':(120, 120)},
 }
+
+# ui
+BAR_HEIGHT = 20
+HEALTH_BAR_WIDTH = 200
+ENERGY_BAR_WIDTH = 140
+ITEM_BOX_SIZE = 80
+UI_FONT = None
+UI_FONT_SIZE = 30
+ 
+# general colors
+WATER_COLOR = '#71ddee'
+UI_BG_COLOR = '#222222'
+UI_BORDER_COLOR = '#111111'
+TEXT_COLOR = '#EEEEEE'
+ 
+# ui colors
+HEALTH_COLOR = 'red'
+ENERGY_COLOR = 'blue'
+STAMINA_COLOR = 'green'
+UI_BORDER_COLOR_ACTIVE = 'gold'
+
+# upgrade menu
+TEXT_COLOR_SELECTED = '#111111'
+BAR_COLOR = '#EEEEEE'
+BAR_COLOR_SELECTED = '#111111'
+UPGRADE_BG_COLOR_SELECTED = '#EEEEEE'

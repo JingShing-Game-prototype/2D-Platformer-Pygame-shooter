@@ -15,7 +15,8 @@ class Entity(pygame.sprite.Sprite):
         self.invinsible = False
         self.invinsible_time = None
         self.invinsible_duration = 500
-        self.health = 100
+        self.or_health = 100
+        self.health = self.or_health
         self.status = 'idle'
         self.crouch = False
         self.flip = False
@@ -212,6 +213,7 @@ class Entity(pygame.sprite.Sprite):
         if not self.invinsible:
             self.health -= value
             if self.health <= 0:
+                # create body flesh
                 for _ in range(randint(5, 10)):
                     self.create_flesh(self.rect.center)
                 self.kill()
