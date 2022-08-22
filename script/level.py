@@ -1,3 +1,4 @@
+from random import randint
 import pygame
 from tiles import Tile
 from player import Player
@@ -6,6 +7,7 @@ from particles import ParticleEffect
 from bullet import Bullet
 from weapon import Weapon
 from enemy import Enemy
+from flesh import Flesh
 import math
 from debug import debug
 
@@ -27,6 +29,7 @@ class Level:
         self.dust_sprite = pygame.sprite.GroupSingle()
         self.bullet_sprite = pygame.sprite.Group()
         self.enemy_sprite = pygame.sprite.Group()
+        self.flesh_sprite = pygame.sprite.Group()
 
         # dust
         self.player_on_ground = False
@@ -73,6 +76,14 @@ class Level:
 
     def create_blood_effect(self, pos, type='blood'):
         ParticleEffect(pos, [self.visible_sprites, self.dust_sprite], type)
+
+    def create_flesh(self, pos):
+        direction = pygame.math.Vector2(randint(-10, 10), randint(5, 10))
+        Flesh(pos=pos, 
+            groups=[self.visible_sprites, 
+            self.flesh_sprite], 
+            obstacle_sprites=self.obstacle_sprites, 
+            direction=direction)
 
     def less_bullet(self, amount = 50):
         if len(self.bullet_sprite.sprites())>amount:
@@ -140,7 +151,8 @@ class Level:
                         self.obstacle_sprites,
                         self.create_jump_or_run_particles,
                         self.create_bullet,
-                        self.create_weapon)
+                        self.create_weapon,
+                        self.create_flesh)
             
         for row_index, row in enumerate(layout):
             for col_index, cell in enumerate(row):
@@ -157,7 +169,8 @@ class Level:
                     self.create_jump_or_run_particles,
                     self.create_bullet,
                     self.player.sprite,
-                    self.create_weapon)
+                    self.create_weapon,
+                    self.create_flesh)
 
     def create_weapon(self, user, type=None, target=None):
         if type:
@@ -366,8 +379,8 @@ class YSortCameraGroup(pygame.sprite.Group):
             offset_pos = sprite.rect.topleft - self.offset + self.internal_offset
             # to make camera direction right need to subtract offset
             # screen.blit(sprite.image, offset_pos)
-            if hasattr(sprite, 'object_type'):
-                if sprite.object_type == 'player':
+            if hasattr(sprite, 'type'):
+                if sprite.type == 'player':
                     sprite.offset_pos = offset_pos
             self.internal_surface.blit(sprite.image, offset_pos)
 

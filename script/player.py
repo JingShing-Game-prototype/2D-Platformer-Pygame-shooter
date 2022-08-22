@@ -2,10 +2,10 @@ import pygame
 from entity import Entity
 
 class Player(Entity):
-    def __init__(self, pos, groups, obstacle_sprites, create_jump_or_run_particles, create_bullet, create_weapon):
+    def __init__(self, pos, groups, obstacle_sprites, create_jump_or_run_particles, create_bullet, create_weapon, create_flesh):
         super().__init__(groups)
         self.import_character_assets()
-        self.object_type = 'player'
+        self.type = 'player'
         self.frame_index = 0
         self.animation_speed = 0.15
         self.image = self.animations['idle'][self.frame_index]
@@ -17,6 +17,7 @@ class Player(Entity):
         # particles
         self.create_jump_or_run_particles = create_jump_or_run_particles
         self.create_bullet = create_bullet
+        self.create_flesh = create_flesh
         
         # player movement
         self.obstacle_sprites = obstacle_sprites

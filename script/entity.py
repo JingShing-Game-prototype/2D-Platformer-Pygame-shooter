@@ -2,10 +2,12 @@ import pygame
 from random import randint
 from settings import weapon_bullet_type, resource_path, map_width, map_height
 
+# for player or enemy
 class Entity(pygame.sprite.Sprite):
     def __init__(self, groups):
         super().__init__(groups)
-        self.object_type = None
+        self.object_type = 'entity'
+        self.type = None
         self.frame_index = 0
         self.animation_speed = 0.15
 
@@ -75,13 +77,13 @@ class Entity(pygame.sprite.Sprite):
 
     def bullet_shoot(self):
         if self.can_shoot and self.weapon and not self.weapon.melee_attack:
-            if self.object_type == 'player':
+            if self.type == 'player':
                 mouse_pos = pygame.mouse.get_pos()
                 # to make mouse accurate
                 user_pos = self.offset_pos
                 x = mouse_pos[0] - user_pos[0]
                 y = mouse_pos[1] - user_pos[1]
-            elif self.object_type == 'enemy':
+            elif self.type == 'enemy':
                 target_pos = self.target.rect
                 user_pos = self.rect
                 x = target_pos[0] - user_pos[0]
@@ -206,11 +208,12 @@ class Entity(pygame.sprite.Sprite):
             if now - self.invinsible_time > self.invinsible_duration:
                 self.invinsible = False
 
-
     def get_damage(self, value):
         if not self.invinsible:
             self.health -= value
             if self.health <= 0:
+                for _ in range(randint(5, 10)):
+                    self.create_flesh(self.rect.center)
                 self.kill()
                 self.weapon.kill()
             else:

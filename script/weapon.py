@@ -65,13 +65,13 @@ class Weapon(pygame.sprite.Sprite):
 
     def adjust_pos(self):
         # get angle rotate and image pos
-        if self.user.object_type == 'player':
+        if self.user.type == 'player':
             mouse_pos = pygame.mouse.get_pos()
             user_pos = self.user.offset_pos
             x = mouse_pos[0] - user_pos[0]
             y = mouse_pos[1] - user_pos[1]
 
-        elif self.user.object_type == 'enemy':
+        elif self.user.type == 'enemy':
             if self.target:
                 target_pos = self.target.rect
                 user_pos = self.user.rect
@@ -222,12 +222,9 @@ class Weapon(pygame.sprite.Sprite):
         for sprite in self.obstacle_sprite:
             if sprite == self:
                 pass
-            elif sprite.object_type == self.user.object_type:
+            elif sprite == self.user:
                 pass
-            elif sprite.object_type == 'player':
-                if sprite.rect.colliderect(self.rect):
-                    self.touch_entity(sprite)
-            elif sprite.object_type == 'enemy':
+            elif sprite.object_type == 'entity':
                 if sprite.rect.colliderect(self.rect):
                     self.touch_entity(sprite)
             elif sprite.object_type == 'bullet':
@@ -236,7 +233,7 @@ class Weapon(pygame.sprite.Sprite):
                         self.touch_entity(sprite)
 
     def melee_attack_animate(self):
-        if self.user.object_type == 'enemy':
+        if self.user.type == 'enemy':
             if self.target:
                 target_pos = self.target.rect
                 user_pos = self.user.rect
@@ -275,7 +272,7 @@ class Weapon(pygame.sprite.Sprite):
         for sprite in self.obstacle_sprite:
             if sprite == self:
                 pass
-            elif sprite.object_type == self.user.object_type:
+            elif sprite == self.user:
                 pass
             elif sprite.object_type == 'bullet':
                 if sprite.rect.colliderect(self.rect):

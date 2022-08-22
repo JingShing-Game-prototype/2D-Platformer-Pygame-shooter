@@ -21,7 +21,7 @@ class Bullet(pygame.sprite.Sprite):
 
         # bullet damage and health
         self.health = 10
-        self.damage = 3
+        self.damage = 30
 
     def get_self_type_info(self):
         if os.path.exists('assets/graphics/weapon/' + self.type + '.png'):
@@ -87,10 +87,7 @@ class Bullet(pygame.sprite.Sprite):
             elif sprite == self.user:
                 # keep bullet hit self
                 pass
-            elif sprite.object_type == 'player':
-                if sprite.rect.colliderect(self.rect):
-                    self.touch_target(sprite)
-            elif sprite.object_type == 'enemy':
+            elif sprite.object_type == 'entity':
                 if sprite.rect.colliderect(self.rect):
                     self.touch_target(sprite)
             elif sprite.object_type == 'bullet':

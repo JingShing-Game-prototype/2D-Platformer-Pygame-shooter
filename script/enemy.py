@@ -2,9 +2,9 @@ import pygame
 from entity import Entity
 
 class Enemy(Entity):
-    def __init__(self, pos, groups, obstacle_sprites, create_jump_or_run_particles, create_bullet, target, create_weapon):
+    def __init__(self, pos, groups, obstacle_sprites, create_jump_or_run_particles, create_bullet, target, create_weapon, create_flesh):
         super().__init__(groups)
-        self.object_type = 'enemy'
+        self.type = 'enemy'
         self.or_image = pygame.Surface((32, 64))
         self.or_image.fill((100, 0, 0))
         self.image = self.or_image.copy()
@@ -15,6 +15,7 @@ class Enemy(Entity):
         # particles
         self.create_jump_or_run_particles = create_jump_or_run_particles
         self.create_bullet = create_bullet
+        self.create_flesh = create_flesh
         
         # movement
         self.obstacle_sprites = obstacle_sprites

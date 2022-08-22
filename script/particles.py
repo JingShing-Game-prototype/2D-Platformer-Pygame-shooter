@@ -23,7 +23,7 @@ class ParticleEffect(pygame.sprite.Sprite):
             effect.fill('green')
             self.frame_length = 5
         elif self.type == 'blood':
-            effect = pygame.Surface((32, 16))
+            effect = pygame.Surface((8, 8))
             # blood color
             if self.china:
                 blood_color = 'green'
