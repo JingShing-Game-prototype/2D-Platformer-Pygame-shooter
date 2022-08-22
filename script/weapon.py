@@ -1,6 +1,6 @@
 import pygame, numpy
 from random import randint
-from settings import resource_path, weapon_data
+from settings import resource_path, weapon_data, joystick
 import os
 
 class Weapon(pygame.sprite.Sprite):
@@ -66,10 +66,14 @@ class Weapon(pygame.sprite.Sprite):
     def adjust_pos(self):
         # get angle rotate and image pos
         if self.user.type == 'player':
-            mouse_pos = pygame.mouse.get_pos()
-            user_pos = self.user.offset_pos
-            x = mouse_pos[0] - user_pos[0]
-            y = mouse_pos[1] - user_pos[1]
+            if self.user.joystick_aim:
+                x = joystick.get_axis(2)
+                y = joystick.get_axis(3)
+            else:
+                mouse_pos = pygame.mouse.get_pos()
+                user_pos = self.user.offset_pos
+                x = mouse_pos[0] - user_pos[0]
+                y = mouse_pos[1] - user_pos[1]
 
         elif self.user.type == 'enemy':
             if self.target:

@@ -11,6 +11,7 @@ from flesh import Flesh
 from ui import UI
 import math
 from debug import debug
+from settings import joystick
 
 class Level:
     def __init__(self, level_data, surface):
@@ -401,12 +402,31 @@ class YSortCameraGroup(pygame.sprite.Group):
         if keys[pygame.K_9]:
             self.zoom_scale = 1
 
+    def camera_joystick_control(self, player):
+        if joystick.get_button(5):
+            # right button
+            self.zoom_scale += 0.1
+        if joystick.get_button(4):
+            # left button
+            self.zoom_scale -= 0.1
+
+        if hasattr(player, 'joystick_camera'):
+            if player.joystick_camera:
+                if joystick.get_hat(0)[0]==-1:self.camera_rect.x -= self.keyboard_speed
+                if joystick.get_hat(0)[0]==1:self.camera_rect.x += self.keyboard_speed
+                if joystick.get_hat(0)[1]==-1:self.camera_rect.y -= self.keyboard_speed
+                if joystick.get_hat(0)[1]==1:self.camera_rect.y += self.keyboard_speed
+        self.offset.x = self.camera_rect.left - self.camera_borders['left']
+        self.offset.y = self.camera_rect.top - self.camera_borders['top']
+
     def custom_draw(self, player):
         # getting the offset
         # self.center_target_camera(player) # center camera
         self.box_target_camera(player) # camera box
         self.keyboard_control_camera()
         self.zoom_keyboard_control()
+        # for joy stick
+        self.camera_joystick_control(player)
         if self.mouse_camera:
             self.mouse_control_camera()
 

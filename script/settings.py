@@ -9,7 +9,7 @@ def resource_path(relative):
 	return absolute_path
 
 pygame.init()
-
+joystick = pygame.joystick.Joystick(0)
 def get_map_width_and_height(map, tile_size):
 	map_width = len(map[0])*tile_size
 	map_height = len(map) * tile_size
