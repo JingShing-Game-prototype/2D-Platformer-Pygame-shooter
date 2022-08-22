@@ -16,6 +16,8 @@ mouse to aim and shoot
 
 use mouse scroll up and scroll down to shoot -> it's like use real gun trigger
 
+# U
+
 ## Ver 0.1
 
 Can use mouse to aim and used keyboard to control camera : scale camera, move camera, mouse control camera.
