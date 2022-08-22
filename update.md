@@ -36,6 +36,9 @@ Enemy has a simple ai to aim player. And need to be trigger.
 * Add map border
 * Add invinsible time
 * Dynamic bullet amount in map
+* Add a object class for item or moving particles.
+* Add flesh explode from dying entity.
+* Change Entity type and object type setting.
 
 ## Up to do
 
@@ -46,7 +49,6 @@ Enemy has a simple ai to aim player. And need to be trigger.
 - [ ] Ammo limit -> do it with UI
 - [ ] UI -> HP, Enemy info , Ammo, Item Info, Map info ...
 - [ ] Menu
-- [ ] enemy body flesh explode effect
 - [ ] more weapon -> need data dict and file to edit
 - [ ] switch map system
 - [ ] networking -> socket?
@@ -65,4 +67,8 @@ Enemy has a simple ai to aim player. And need to be trigger.
 - [x] melee weapon and melee attack system
 - [x] switch weapon
 - [x] shield
+
+22/8/22
+
+- [x] enemy body flesh explode effect
 
