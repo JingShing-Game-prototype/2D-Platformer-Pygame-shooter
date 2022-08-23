@@ -6,10 +6,11 @@ A 2D platformer shooter.
 * f to shoot in front of character
 * m to switch mouse control camera
 * l to open test camera box
-* o to active enemy hatred
+* O to active enemy hatred
 * mouse to aim
 * left mouse key to shoot
 * right mouse key to melee attack
+* Q, R to switch weapon
 * 0 to switch shader
 * 9 to resize camera
 * \+ , - to scale camera
@@ -103,6 +104,7 @@ Enemy has a simple ai to aim player. And need to be trigger.
 * Update flesh move. Can add x direction by bullet hit.
 * Add particle to object pool.
 * Add joystick control.
+* Add player, enemy and weapon to object pool.
 ## object pool format process
 
 1. Set used_groups to store groups and old_self function to load new info\
@@ -136,6 +138,7 @@ Enemy has a simple ai to aim player. And need to be trigger.
 - [ ] Boss Fight
 - [ ] Random mode
 - [ ] Store System -> need money or credit
+- [ ] Mobile
 
 ## Finish
 
