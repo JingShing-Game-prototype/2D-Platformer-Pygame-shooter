@@ -4,10 +4,12 @@ from settings import resource_path, weapon_data, joystick
 import os
 
 class Weapon(pygame.sprite.Sprite):
-    def __init__(self, groups, obstacle_sprite, user, target=None, type='ak74', create_blood_effect=None):
+    def __init__(self, groups, obstacle_sprite, user, target=None, type='ak74', create_blood_effect=None, move_to_object_pool=None):
         super().__init__(groups)
+        self.used_groups = groups
         self.obstacle_sprite = obstacle_sprite
         self.create_blood_effect = create_blood_effect
+        self.move_to_object_pool = move_to_object_pool
         self.sprite_groups = groups
         self.object_type = 'weapon'
         self.type = type
@@ -43,6 +45,17 @@ class Weapon(pygame.sprite.Sprite):
         self.rect = self.or_image.get_rect(bottomright=self.user.rect.center)
         self.image = self.or_image.copy()
 
+    def old_weapon(self, user, target=None, type='ak74'):
+        self.can_melee_attack = True
+        self.can_range_attack = True
+        self.object_type = 'weapon'
+        self.type = type
+        self.attack_type = 'ranged'
+        self.user = user
+        self.target = target
+        self.get_self_type_info()
+        self.rect = self.or_image.get_rect(bottomright=self.user.rect.center)
+        self.image = self.or_image.copy()
 
     def get_self_type_info(self):
         if os.path.exists('assets/graphics/weapon/' + self.type + '.png'):
@@ -65,6 +78,8 @@ class Weapon(pygame.sprite.Sprite):
 
     def adjust_pos(self):
         # get angle rotate and image pos
+        x=0
+        y=0
         if self.user.type == 'player':
             if self.user.joystick_aim:
                 x = joystick.get_axis(2)
@@ -220,7 +235,7 @@ class Weapon(pygame.sprite.Sprite):
             if hasattr(entity, 'health'):
                 entity.get_damage(self.melee_damage)
             else:
-                entity.kill()
+                entity.move_to_object_pool()
 
     def detect_entity(self):
         for sprite in self.obstacle_sprite:
@@ -281,7 +296,7 @@ class Weapon(pygame.sprite.Sprite):
             elif sprite.object_type == 'bullet':
                 if sprite.rect.colliderect(self.rect):
                     if sprite.direction.magnitude() != 0:
-                        sprite.kill()
+                        sprite.move_to_object_pool(sprite)
 
     def update(self):
         if self.type == 'shield':

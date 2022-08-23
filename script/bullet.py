@@ -83,11 +83,7 @@ class Bullet(pygame.sprite.Sprite):
                     target.get_damage(self.damage)
                     # self.get_damage(target.damage)
                 else:
-                    target.kill()
-
-            # if target.object_type == 'bullet':
-            #     target.kill()
-            #     self.kill() # kill bullet when bullet bump
+                    target.move_to_object_pool(target)
 
     def get_damage(self, value):
         self.health -= value

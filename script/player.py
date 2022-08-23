@@ -3,7 +3,7 @@ from entity import Entity
 from settings import joystick
 
 class Player(Entity):
-    def __init__(self, pos, groups, obstacle_sprites, create_jump_or_run_particles, create_bullet, create_weapon, create_flesh):
+    def __init__(self, pos, groups, obstacle_sprites, create_jump_or_run_particles, create_bullet, create_weapon, create_flesh, move_to_object_pool):
         super().__init__(groups)
         self.import_character_assets()
         self.type = 'player'
@@ -11,6 +11,7 @@ class Player(Entity):
         self.animation_speed = 0.15
         self.image = self.animations['idle'][self.frame_index]
         self.rect = self.image.get_rect(topleft = pos)
+        self.move_to_object_pool = move_to_object_pool
 
         # fix mouse pos wrong
         self.offset_pos = self.rect

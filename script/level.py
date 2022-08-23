@@ -99,11 +99,15 @@ class Level:
         for group in object.used_groups:
             group.add(object)
 
-    def seek_object_from_object_pool(self, object_type):
+    def seek_object_from_object_pool(self, object_type, type=None):
         object = None
         for item in self.object_pool.sprites():
-            if item.object_type == object_type:
-                return item
+            if type:
+                if item.object_type == object_type and item.type == type:
+                    return item
+            else:
+                if item.object_type == object_type:
+                    return item
         return object
 
     def create_blood_effect(self, pos, type='blood'):
@@ -133,7 +137,6 @@ class Level:
             for sprite in self.bullet_sprite.sprites():
                 if len(self.bullet_sprite.sprites())<=amount:
                     break
-                # sprite.kill()
                 self.move_to_object_pool(sprite)
 
     def far_bullets_kill(self, amount = 50):
@@ -142,7 +145,6 @@ class Level:
                 if len(self.bullet_sprite.sprites())<=amount:
                     break
                 if math.sqrt((sprite.rect.x - self.player.sprite.rect.x)**2 + (sprite.rect.y - self.player.sprite.rect.y)**2) > self.bullet_far_kill_range:
-                    # sprite.kill()
                     self.move_to_object_pool(sprite)
 
     def stop_bullets_kill(self, amount = 10):
@@ -150,8 +152,7 @@ class Level:
             for sprite in self.bullet_sprite.sprites():
                 if len(self.bullet_sprite.sprites())<=amount:
                     break
-                if sprite.direction.magnitude() == 0:                    
-                    # sprite.kill()
+                if sprite.direction.magnitude() == 0:
                     self.move_to_object_pool(sprite)
 
     def get_player_on_ground(self):
@@ -175,12 +176,16 @@ class Level:
                     move_to_object_pool=self.move_to_object_pool)
 
     def setup_level(self, layout, reset = False):
-        if reset:            
-            self.visible_sprites.empty()
-            self.obstacle_sprites.empty()
-            self.tiles.empty()
-            self.player.empty()
-            self.dust_sprite.empty()
+        if reset:
+            for sprite in self.visible_sprites.sprites():
+                self.move_to_object_pool(sprite)
+            for sprite in self.obstacle_sprites.sprites():
+                self.move_to_object_pool(sprite)
+            # self.visible_sprites.empty()
+            # self.obstacle_sprites.empty()
+            # self.tiles.empty()
+            # self.player.empty()
+            # self.dust_sprite.empty()
         for row_index, row in enumerate(layout):
             for col_index, cell in enumerate(row):
                 x = col_index * tile_size
@@ -197,16 +202,22 @@ class Level:
                         self.player.sprite.rect.x = x
                         self.player.sprite.rect.y = y
                     else:
-                        Player((x, y), 
-                        [self.visible_sprites,
-                        self.obstacle_sprites, 
-                        self.player], 
-                        self.obstacle_sprites,
-                        self.create_jump_or_run_particles,
-                        self.create_bullet,
-                        self.create_weapon,
-                        self.create_flesh)
-            
+                        old_player = self.seek_object_from_object_pool('entity', 'player')
+                        if old_player:
+                            self.take_from_object_pool(old_player)
+                            old_player.old_entity(pos=(x, y), type='player')
+                        else:
+                            Player((x, y), 
+                            [self.visible_sprites,
+                            self.obstacle_sprites, 
+                            self.player], 
+                            self.obstacle_sprites,
+                            self.create_jump_or_run_particles,
+                            self.create_bullet,
+                            self.create_weapon,
+                            self.create_flesh,
+                            self.move_to_object_pool)
+                
         for row_index, row in enumerate(layout):
             for col_index, cell in enumerate(row):
                 x = col_index * tile_size
@@ -214,31 +225,35 @@ class Level:
                 # enemy need player as target
                 # enemy might spawn before player spawn
                 if cell == 'N':
-                    Enemy((x, y), 
-                    [self.visible_sprites,
-                    self.obstacle_sprites, 
-                    self.enemy_sprite], 
-                    self.obstacle_sprites,
-                    self.create_jump_or_run_particles,
-                    self.create_bullet,
-                    self.player.sprite,
-                    self.create_weapon,
-                    self.create_flesh)
+                    old_enemy = self.seek_object_from_object_pool('entity', 'enemy')
+                    if old_enemy:
+                        self.take_from_object_pool(old_enemy)
+                        old_enemy.old_entity(pos=(x, y), type='enemy', target=self.player.sprite)
+                    else:
+                        Enemy((x, y), 
+                        [self.visible_sprites,
+                        self.obstacle_sprites, 
+                        self.enemy_sprite], 
+                        self.obstacle_sprites,
+                        self.create_jump_or_run_particles,
+                        self.create_bullet,
+                        self.player.sprite,
+                        self.create_weapon,
+                        self.create_flesh,
+                        self.move_to_object_pool)
 
-    def create_weapon(self, user, type=None, target=None):
-        if type:
-            return Weapon([self.visible_sprites],
-                            self.obstacle_sprites,
-                            user, 
-                            self.player.sprite,
-                            type = type,
-                            create_blood_effect = self.create_blood_effect)
-        else:
-            return Weapon([self.visible_sprites],
-                            self.obstacle_sprites,
-                            user, 
-                            self.player.sprite,
-                            create_blood_effect = self.create_blood_effect)
+    def create_weapon(self, user, type='ak74', target=None):
+        old_weapon = self.seek_object_from_object_pool('weapon')
+        if old_weapon:
+            self.take_from_object_pool(old_weapon)
+            old_weapon.old_weapon(user, target, type)
+        return Weapon([self.visible_sprites],
+                        self.obstacle_sprites,
+                        user, 
+                        target=target,
+                        type=type,
+                        create_blood_effect = self.create_blood_effect,
+                        move_to_object_pool = self.move_to_object_pool)
 
     def no_player(self):
         if not self.player.sprite:

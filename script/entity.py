@@ -6,6 +6,7 @@ from settings import weapon_bullet_type, resource_path, map_width, map_height
 class Entity(pygame.sprite.Sprite):
     def __init__(self, groups):
         super().__init__(groups)
+        self.used_groups = groups
         self.object_type = 'entity'
         self.type = None
         self.frame_index = 0
@@ -60,6 +61,28 @@ class Entity(pygame.sprite.Sprite):
         self.melee_attack_time = None
         self.or_melee_attack_cd = 500
         self.melee_attack_cd = self.or_melee_attack_cd
+
+    def old_entity(self, pos, type, target=None):
+        self.frame_index = 0
+        self.type = type
+
+        self.or_health = 100
+        self.health = self.or_health
+        # weapon
+        if self.type == 'player':
+            self.image = self.animations['idle'][self.frame_index]
+            self.rect = self.image.get_rect(topleft = pos)
+        elif self.type == 'enemy':
+            self.target = target
+            self.or_image = pygame.Surface((32, 64))
+            self.or_image.fill((100, 0, 0))
+            self.image = self.or_image.copy()
+            self.rect = self.image.get_rect(topleft = pos)
+            self.defense = False
+
+        # self.weapon_index = 0
+        self.weapon_type = self.weapon_list[self.weapon_index]
+        self.weapon = self.create_weapon(user=self, type=self.weapon_type, target=target)
 
     def run_dust_animation(self):
         if self.status == 'run' and self.on_ground:
@@ -216,8 +239,8 @@ class Entity(pygame.sprite.Sprite):
                 # create body flesh
                 for _ in range(randint(5, 10)):
                     self.create_flesh(self.rect.center)
-                self.kill()
-                self.weapon.kill()
+                self.weapon.move_to_object_pool(self.weapon)
+                self.move_to_object_pool(self)
             else:
                 self.invinsible = True
                 self.invinsible_time = pygame.time.get_ticks()

@@ -3,6 +3,7 @@ import pygame
 class Tile(pygame.sprite.Sprite):
     def __init__(self, pos, groups, size):
         super().__init__(groups)
+        self.used_groups = groups
         self.object_type = 'tile'
         self.image = pygame.Surface((size, size))
         # self.image.fill('grey')
