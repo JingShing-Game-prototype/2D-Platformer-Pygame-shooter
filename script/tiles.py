@@ -10,6 +10,12 @@ class Tile(pygame.sprite.Sprite):
         self.image.fill((100,100,100))
         self.rect = self.image.get_rect(topleft = pos)
 
+    def old_tile(self, pos, size):
+        self.image = pygame.Surface((size, size))
+        # self.image.fill('grey')
+        self.image.fill((100,100,100))
+        self.rect = self.image.get_rect(topleft = pos)
+
     def update(self, shift=pygame.math.Vector2(0,0)):
         self.rect.x += shift.x
         self.rect.y += shift.y

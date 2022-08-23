@@ -1,6 +1,6 @@
 import pygame
 from random import randint
-from settings import weapon_bullet_type, resource_path, map_width, map_height
+from settings import weapon_bullet_type, resource_path, map_width, map_height, joystick
 
 # for player or enemy
 class Entity(pygame.sprite.Sprite):
@@ -102,11 +102,15 @@ class Entity(pygame.sprite.Sprite):
     def bullet_shoot(self):
         if self.can_shoot and self.weapon and not self.weapon.melee_attack:
             if self.type == 'player':
-                mouse_pos = pygame.mouse.get_pos()
-                # to make mouse accurate
                 user_pos = self.offset_pos
-                x = mouse_pos[0] - user_pos[0]
-                y = mouse_pos[1] - user_pos[1]
+                if self.joystick_aim:
+                    x = joystick.get_axis(2)
+                    y = joystick.get_axis(3)
+                else:
+                    mouse_pos = pygame.mouse.get_pos()
+                    # to make mouse accurate
+                    x = mouse_pos[0] - user_pos[0]
+                    y = mouse_pos[1] - user_pos[1]
             elif self.type == 'enemy':
                 target_pos = self.target.rect
                 user_pos = self.rect
@@ -128,7 +132,9 @@ class Entity(pygame.sprite.Sprite):
 
             for _ in range(self.shoot_times):
                 # If i > 1 it would be like a shotgun
-                direction = pygame.math.Vector2(x, y + randint(-self.aim_rate, self.aim_rate))
+                direction = pygame.math.Vector2(x, y)
+                if direction.magnitude() > 2:
+                    direction.y += randint(-self.aim_rate, self.aim_rate)
                 if self.weapon.type in weapon_bullet_type:
                     across_wall = weapon_bullet_type[self.weapon.type]['across_wall']
                     bullet_type_name = weapon_bullet_type[self.weapon.type]['name']
@@ -239,7 +245,8 @@ class Entity(pygame.sprite.Sprite):
                 # create body flesh
                 for _ in range(randint(5, 10)):
                     self.create_flesh(self.rect.center)
-                self.weapon.move_to_object_pool(self.weapon)
+                self.move_to_object_pool(self.weapon)
+                # self.weapon.kill()
                 self.move_to_object_pool(self)
             else:
                 self.invinsible = True

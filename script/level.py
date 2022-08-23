@@ -179,8 +179,10 @@ class Level:
         if reset:
             for sprite in self.visible_sprites.sprites():
                 self.move_to_object_pool(sprite)
+                # sprite.kill()
             for sprite in self.obstacle_sprites.sprites():
                 self.move_to_object_pool(sprite)
+                # sprite.kill()
             # self.visible_sprites.empty()
             # self.obstacle_sprites.empty()
             # self.tiles.empty()
@@ -191,12 +193,17 @@ class Level:
                 x = col_index * tile_size
                 y = row_index * tile_size
                 if cell == 'X':
-                    Tile((x, y), 
-                    [self.visible_sprites,
-                    self.tiles,
-                    self.obstacle_sprites
-                    ], 
-                    tile_size)
+                    old_tile = self.seek_object_from_object_pool('tile')
+                    if old_tile:
+                        self.take_from_object_pool(old_tile)
+                        old_tile.old_tile((x, y), tile_size)
+                    else:
+                        Tile((x, y), 
+                        [self.visible_sprites,
+                        self.tiles,
+                        self.obstacle_sprites
+                        ], 
+                        tile_size)
                 elif cell == 'P':
                     if self.player.sprite and not reset:
                         self.player.sprite.rect.x = x
@@ -247,7 +254,9 @@ class Level:
         if old_weapon:
             self.take_from_object_pool(old_weapon)
             old_weapon.old_weapon(user, target, type)
-        return Weapon([self.visible_sprites],
+            return old_weapon
+        else:
+            return Weapon([self.visible_sprites],
                         self.obstacle_sprites,
                         user, 
                         target=target,
@@ -279,6 +288,14 @@ class Level:
             debug(str(pygame.mouse.get_pos()), 10, 80)
             debug(str(self.player.sprite.health), 10, 110)
             debug(str(len(self.bullet_sprite)), 10, 130)
+            debug(str(self.player.sprite.weapon.angle), 10, 150)
+            debug(str(len(self.object_pool.sprites())), 10, 170)
+            if len(self.object_pool.sprites())>1:
+                debug(str(self.object_pool.sprites()[0].object_type), 10, 190)
+
+            # print(len(self.object_pool.sprites()))
+            # if len(self.object_pool.sprites())>1:
+            #     print(self.object_pool.sprites()[0].object_type)
 
 from settings import screen, screen_height, screen_width
 class YSortCameraGroup(pygame.sprite.Group):

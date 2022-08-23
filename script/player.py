@@ -196,7 +196,9 @@ class Player(Entity):
             elif which == 'before':
                 self.weapon_index = (self.weapon_index + len(self.weapon_list) - 1) % len(self.weapon_list)
             self.weapon_type = self.weapon_list[self.weapon_index]
-            self.weapon.__init__(user=self.weapon.user, obstacle_sprite = self.weapon.obstacle_sprite, groups=self.weapon.sprite_groups, target=self.weapon.target, type=self.weapon_list[self.weapon_index], create_blood_effect=self.weapon.create_blood_effect)
+            self.weapon.old_weapon(user=self.weapon.user, 
+                                  target=self.weapon.target, 
+                                    type=self.weapon_list[self.weapon_index])
 
     def cooldown(self):
         now = pygame.time.get_ticks()

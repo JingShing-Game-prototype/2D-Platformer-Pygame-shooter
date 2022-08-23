@@ -10,7 +10,6 @@ class Weapon(pygame.sprite.Sprite):
         self.obstacle_sprite = obstacle_sprite
         self.create_blood_effect = create_blood_effect
         self.move_to_object_pool = move_to_object_pool
-        self.sprite_groups = groups
         self.object_type = 'weapon'
         self.type = type
         self.attack_type = 'ranged'
@@ -78,15 +77,13 @@ class Weapon(pygame.sprite.Sprite):
 
     def adjust_pos(self):
         # get angle rotate and image pos
-        x=0
-        y=0
         if self.user.type == 'player':
+            user_pos = self.user.offset_pos
             if self.user.joystick_aim:
                 x = joystick.get_axis(2)
                 y = joystick.get_axis(3)
             else:
                 mouse_pos = pygame.mouse.get_pos()
-                user_pos = self.user.offset_pos
                 x = mouse_pos[0] - user_pos[0]
                 y = mouse_pos[1] - user_pos[1]
 
@@ -96,7 +93,7 @@ class Weapon(pygame.sprite.Sprite):
                 user_pos = self.user.rect
                 x = target_pos[0] - user_pos[0]
                 y = target_pos[1] - user_pos[1]
-        
+
         self.user.flip = True if x < 0 else False
         angle = 0
         if x!=0 and y!=0:
