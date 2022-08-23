@@ -1,5 +1,6 @@
 ## User Manual
 You can get this exe here : https://jingshing.itch.io/gunfight-prototype
+
 A 2D platformer shooter.
 ### keyboard & mouse
 
