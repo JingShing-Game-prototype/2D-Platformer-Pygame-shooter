@@ -446,8 +446,8 @@ class YSortCameraGroup(pygame.sprite.Group):
             if player.joystick_camera:
                 if joystick.get_hat(0)[0]==-1:self.camera_rect.x -= self.keyboard_speed
                 if joystick.get_hat(0)[0]==1:self.camera_rect.x += self.keyboard_speed
-                if joystick.get_hat(0)[1]==-1:self.camera_rect.y -= self.keyboard_speed
-                if joystick.get_hat(0)[1]==1:self.camera_rect.y += self.keyboard_speed
+                if joystick.get_hat(0)[1]==1:self.camera_rect.y -= self.keyboard_speed
+                if joystick.get_hat(0)[1]==-1:self.camera_rect.y += self.keyboard_speed
         self.offset.x = self.camera_rect.left - self.camera_borders['left']
         self.offset.y = self.camera_rect.top - self.camera_borders['top']
 
@@ -486,7 +486,7 @@ class YSortCameraGroup(pygame.sprite.Group):
             # screen.blit(sprite.image, offset_pos)
             if hasattr(sprite, 'type'):
                 if sprite.type == 'player':
-                    sprite.offset_pos = offset_pos
+                    sprite.offset_pos = sprite.rect.center - self.offset
             self.internal_surface.blit(sprite.image, offset_pos)
 
         scaled_surf  = pygame.transform.scale(self.internal_surface, self.internal_surface_size_vector * self.zoom_scale)

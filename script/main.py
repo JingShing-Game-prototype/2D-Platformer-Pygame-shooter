@@ -6,6 +6,13 @@ class Game:
     def __init__(self):
         # pygame setup
         pygame.init()
+        pygame.mouse.set_visible(False)
+
+        # cursor
+        self.cursor_image = pygame.image.load(resource_path('assets/graphics/UI/aim.png'))
+        self.cursor_image = pygame.transform.scale(self.cursor_image, (64, 64))
+        self.cursor_image_rect = self.cursor_image.get_rect()
+
         self.clock = pygame.time.Clock()
         # self.level = Level(level_data=no_enemy_level_map, surface=screen)
         self.level = Level(level_data=level_map, surface=screen)
@@ -51,7 +58,8 @@ class Game:
                         # 5 - scroll down
 
             self.level.run()
-            
+            self.cursor_image_rect.center = pygame.mouse.get_pos()
+            screen.blit(self.cursor_image, self.cursor_image_rect)
             crt_shader()
             self.clock.tick(60)
 

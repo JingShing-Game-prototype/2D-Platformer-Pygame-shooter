@@ -1,6 +1,6 @@
 import pygame, numpy
 from random import randint
-from settings import resource_path, weapon_data, joystick
+from settings import resource_path, weapon_data, joystick, screen_height, screen_width
 import os
 
 class Weapon(pygame.sprite.Sprite):
@@ -82,6 +82,16 @@ class Weapon(pygame.sprite.Sprite):
             if self.user.joystick_aim:
                 x = joystick.get_axis(2)
                 y = joystick.get_axis(3)
+                # aim pivot
+                aim_range = pygame.math.Vector2(x, y)
+                if aim_range.magnitude()!=0:
+                    aim_range.normalize()
+                aim_pos = user_pos + aim_range * 300
+                if aim_pos.x > screen_width: aim_pos.x = screen_width
+                elif aim_pos.x < 0: aim_pos.y = 0
+                if aim_pos.y > screen_height: aim_pos.y = screen_height
+                elif aim_pos.y < 0: aim_pos.y = 0
+                pygame.mouse.set_pos(aim_pos)
             else:
                 mouse_pos = pygame.mouse.get_pos()
                 x = mouse_pos[0] - user_pos[0]
