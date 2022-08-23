@@ -104,7 +104,9 @@ Enemy has a simple ai to aim player. And need to be trigger.
 * Update flesh move. Can add x direction by bullet hit.
 * Add particle to object pool.
 * Add joystick control.
-* Add player, enemy and weapon to object pool.
+* Add player, enemy and weapon to object pool. -> weapon float bug
+* Fixed joystick aim.
+* Weapon spawn error fixed.
 ## object pool format process
 
 1. Set used_groups to store groups and old_self function to load new info\
