@@ -120,6 +120,10 @@ Enemy has a simple ai to aim player. And need to be trigger.
 * Sword can kill bullet by sweeping.
 * Add background texture.
 
+## Ver 0.6
+
+* Add controller vibration. (while getting damage or shooting bullet)
+
 ## object pool format process
 
 1. Set used_groups to store groups and old_self function to load new info\
@@ -158,7 +162,6 @@ Enemy has a simple ai to aim player. And need to be trigger.
 - [ ] bgm
 - [ ] more sfx
 - [ ] dual gun
-- [ ] controller vibration
 
 ## Finish
 
@@ -178,3 +181,7 @@ Enemy has a simple ai to aim player. And need to be trigger.
 22/8/23
 
 - [x] xbox controller
+
+22/8/25
+
+- [x] controller vibration
