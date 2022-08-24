@@ -1,7 +1,9 @@
 ## User Manual
-You can get this exe here : https://jingshing.itch.io/gunfight-prototype
+
+You can get exe here : https://jingshing.itch.io/gunfight-prototype
 
 A 2D platformer shooter.
+
 ### keyboard & mouse
 
 * w, a, s, d to move t, y, g, h to move camera
@@ -99,6 +101,7 @@ Enemy has a simple ai to aim player. And need to be trigger.
 * Add Weapon UI
 
 ## Ver 0.5
+
 * Add object pool and 3 function about object pool. Now can store bullet in it.
   * move_to_object_pool(self, object)
   * take_from_object_pool(self, object)
@@ -109,6 +112,14 @@ Enemy has a simple ai to aim player. And need to be trigger.
 * Add player, enemy and weapon to object pool. -> weapon float bug
 * Fixed joystick aim.
 * Weapon spawn error fixed.
+* Add custom cursor.
+* Fixed cursor offset and aiming deviation.
+* Add controller detect feature.
+* Add load map function.
+* Fixed image texture problem. exe all guns.
+* Sword can kill bullet by sweeping.
+* Add background texture.
+
 ## object pool format process
 
 1. Set used_groups to store groups and old_self function to load new info\
@@ -117,12 +128,12 @@ Enemy has a simple ai to aim player. And need to be trigger.
 
 3. Find where you spawn this object replace with code below
 
-    ```python
-    old_object = self.seek_object_from_object_pool('object_type')
-    if old_object:
-        self.take_from_object_pool(old_particle)
-        old_object.old_object(self, reference...)
-    ```
+   ```python
+   old_object = self.seek_object_from_object_pool('object_type')
+   if old_object:
+       self.take_from_object_pool(old_particle)
+       old_object.old_object(self, reference...)
+   ```
 
 
 ## Up to do
@@ -143,6 +154,10 @@ Enemy has a simple ai to aim player. And need to be trigger.
 - [ ] Random mode
 - [ ] Store System -> need money or credit
 - [ ] Mobile
+- [ ] Map editor -> map save system
+- [ ] bgm
+- [ ] more sfx
+- [ ] dual gun
 
 ## Finish
 
