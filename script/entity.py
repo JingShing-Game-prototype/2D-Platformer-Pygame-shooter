@@ -1,6 +1,6 @@
 import pygame
 from random import randint
-from settings import weapon_bullet_type, resource_path, map_width, map_height, joystick
+from settings import weapon_bullet_type, resource_path, map_width, map_height, joystick, has_joystick
 
 # for player or enemy
 class Entity(pygame.sprite.Sprite):
@@ -102,6 +102,9 @@ class Entity(pygame.sprite.Sprite):
     def bullet_shoot(self):
         if self.can_shoot and self.weapon and not self.weapon.melee_attack:
             if self.type == 'player':
+                if has_joystick:
+                    # controller vibration
+                    joystick.rumble(0.1, 0.5, 500)
                 user_pos = self.offset_pos
                 if self.joystick_aim:
                     x = joystick.get_axis(2)
@@ -240,6 +243,10 @@ class Entity(pygame.sprite.Sprite):
 
     def get_damage(self, value):
         if not self.invinsible:
+            if self.type == 'player':
+                if has_joystick:
+                    # controller vibration
+                    joystick.rumble(0.5, 1, 1000)
             self.health -= value
             if self.health <= 0:
                 # create body flesh

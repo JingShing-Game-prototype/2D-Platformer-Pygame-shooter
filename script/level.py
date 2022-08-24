@@ -282,19 +282,15 @@ class Level:
         self.get_player_on_ground()
         self.create_landing_dust()
 
-        if self.player.sprite:
-            debug(str(self.player.sprite.rect), 10, 60)
-            debug(str(pygame.mouse.get_pos()), 10, 80)
-            debug(str(self.player.sprite.health), 10, 110)
-            debug(str(len(self.bullet_sprite)), 10, 130)
-            debug(str(int(self.player.sprite.weapon.angle)), 10, 150)
-            debug(str(len(self.object_pool.sprites())), 10, 170)
-            if len(self.object_pool.sprites())>1:
-                debug(str(self.object_pool.sprites()[0].object_type), 10, 190)
-
-            # print(len(self.object_pool.sprites()))
-            # if len(self.object_pool.sprites())>1:
-            #     print(self.object_pool.sprites()[0].object_type)
+        # if self.player.sprite:
+        #     debug(str(self.player.sprite.rect), 10, 60)
+        #     debug(str(pygame.mouse.get_pos()), 10, 80)
+        #     debug(str(self.player.sprite.health), 10, 110)
+        #     debug(str(len(self.bullet_sprite)), 10, 130)
+        #     debug(str(int(self.player.sprite.weapon.angle)), 10, 150)
+        #     debug(str(len(self.object_pool.sprites())), 10, 170)
+        #     if len(self.object_pool.sprites())>1:
+        #         debug(str(self.object_pool.sprites()[0].object_type), 10, 190)
 
 from settings import screen, screen_height, screen_width, has_joystick, joystick, resource_path
 class YSortCameraGroup(pygame.sprite.Group):
@@ -475,8 +471,8 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.internal_surface.fill('grey')
         # drawing the floor
         # offset needed
-        # floor_offset_pos = self.floor_rect.topleft - self.offset + self.internal_offset
-        floor_offset_pos = self.floor_rect.topleft # fixed stick at same place
+        # floor_offset_pos = self.floor_rect.topleft - self.offset + self.internal_offset # stick at same map pos
+        floor_offset_pos = self.floor_rect.topleft # fixed stick at screen pos
         self.internal_surface.blit(self.floor_surf, floor_offset_pos)
 
         # for sprite in self.sprites():
