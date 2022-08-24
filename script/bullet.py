@@ -42,7 +42,7 @@ class Bullet(pygame.sprite.Sprite):
 
 
     def get_self_type_info(self):
-        if os.path.exists('assets/graphics/weapon/' + self.type + '.png'):
+        if os.path.exists(resource_path('assets/graphics/weapon/' + self.type + '.png')):
             self.image = pygame.image.load(resource_path('assets/graphics/weapon/' + self.type + '.png')).convert_alpha()
         else:
             self.image = pygame.image.load(resource_path('assets/graphics/weapon/ak74.png')).convert_alpha()

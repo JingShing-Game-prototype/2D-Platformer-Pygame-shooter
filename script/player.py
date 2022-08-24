@@ -1,6 +1,6 @@
 import pygame
 from entity import Entity
-from settings import joystick
+from settings import joystick, has_joystick
 
 class Player(Entity):
     def __init__(self, pos, groups, obstacle_sprites, create_jump_or_run_particles, create_bullet, create_weapon, create_flesh, move_to_object_pool):
@@ -118,52 +118,53 @@ class Player(Entity):
         elif keys[pygame.K_q]:
             self.switch_weapon('before')
 
-        if not self.joystick_camera:
-            if joystick.get_hat(0)[0]==1:
-                # dpad right
+        if has_joystick:
+            if not self.joystick_camera:
+                if joystick.get_hat(0)[0]==1:
+                    # dpad right
+                    self.direction.x = 1
+                    self.flip = False
+                elif joystick.get_hat(0)[0]==-1:
+                    # dpad left
+                    self.direction.x = -1
+                    self.flip = True
+                if joystick.get_hat(0)[1]==1:
+                    # dpad up and A button
+                    self.gravity = self.or_gravity
+                    self.jump()
+                    self.create_jump_or_run_particles(self.rect.midbottom, 'jump')
+            if self.can_input:
+                self.can_input = False
+                self.input_time = pygame.time.get_ticks()
+                if joystick.get_button(9):
+                    self.joystick_aim = not self.joystick_aim
+                if joystick.get_button(8):
+                    self.joystick_camera = not self.joystick_camera
+            if joystick.get_axis(0)>=0.5:
+                # joystick right
                 self.direction.x = 1
                 self.flip = False
-            elif joystick.get_hat(0)[0]==-1:
-                # dpad left
+            elif joystick.get_axis(0)<=-0.5:
+                # joystick
                 self.direction.x = -1
                 self.flip = True
-            if joystick.get_hat(0)[1]==1:
-                # dpad up and A button
+            if (joystick.get_button(0) or joystick.get_axis(1)<=-0.5) and self.on_ground:
+                # joystick up and A button
                 self.gravity = self.or_gravity
                 self.jump()
                 self.create_jump_or_run_particles(self.rect.midbottom, 'jump')
-        if self.can_input:
-            self.can_input = False
-            self.input_time = pygame.time.get_ticks()
-            if joystick.get_button(9):
-                self.joystick_aim = not self.joystick_aim
-            if joystick.get_button(8):
-                self.joystick_camera = not self.joystick_camera
-        if joystick.get_axis(0)>=0.5:
-            # joystick right
-            self.direction.x = 1
-            self.flip = False
-        elif joystick.get_axis(0)<=-0.5:
-            # joystick
-            self.direction.x = -1
-            self.flip = True
-        if (joystick.get_button(0) or joystick.get_axis(1)<=-0.5) and self.on_ground:
-            # joystick up and A button
-            self.gravity = self.or_gravity
-            self.jump()
-            self.create_jump_or_run_particles(self.rect.midbottom, 'jump')
-        if joystick.get_axis(5) > 0:
-            # RT
-            self.bullet_shoot()
-        if joystick.get_axis(4) > 0.5:
-            # LT
-            self.melee_attack()
-        if joystick.get_button(3):
-            # Y button
-            self.switch_weapon('before')
-        if joystick.get_button(1):
-            # B button
-            self.switch_weapon('next')
+            if joystick.get_axis(5) > 0:
+                # RT
+                self.bullet_shoot()
+            if joystick.get_axis(4) > 0.5:
+                # LT
+                self.melee_attack()
+            if joystick.get_button(3):
+                # Y button
+                self.switch_weapon('before')
+            if joystick.get_button(1):
+                # B button
+                self.switch_weapon('next')
 
         # joystick
         # A Button        - Button 0

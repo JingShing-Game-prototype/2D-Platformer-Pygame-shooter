@@ -32,6 +32,9 @@ class Game:
                     pygame.quit()
                     sys.exit()
                 elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_ESCAPE:
+                        pygame.quit()
+                        sys.exit()
                     if event.key == pygame.K_0:
                         crt_shader.change_shader()
                     if event.key == pygame.K_8:

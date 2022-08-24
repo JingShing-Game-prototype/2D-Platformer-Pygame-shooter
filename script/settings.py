@@ -1,5 +1,6 @@
 from crt_shader import Graphic_engine
 import pygame, os, sys
+from save_and_load import save_map, load_map, found_map_or_not
 
 def resource_path(relative):
 	if hasattr(sys, "_MEIPASS"):
@@ -9,7 +10,12 @@ def resource_path(relative):
 	return absolute_path
 
 pygame.init()
-joystick = pygame.joystick.Joystick(0)
+joystick_count = pygame.joystick.get_count()
+has_joystick = False
+joystick = None
+if joystick_count > 0:
+	has_joystick = True
+	joystick = pygame.joystick.Joystick(0)
 def get_map_width_and_height(map, tile_size):
 	map_width = len(map[0])*tile_size
 	map_height = len(map) * tile_size
@@ -41,10 +47,14 @@ level_map = [
 '       X  XXXX    XX  XXX   ',
 '    XXXX  XXXXXX  XX  XXXX  ',
 'XXXXXXXX  XXXXXX  XX  XXXX  ']
+if found_map_or_not('level0'):
+	load_map('assets/maps/' + 'level0' + '.txt', level_map)
+# else:
+# 	save_map('assets/maps/' + 'level0' + '.txt', level_map)
 
 tile_size = 64
-screen_width = 64*15
-screen_height = 640
+screen_width = 800
+screen_height = 600
 map_width, map_height = get_map_width_and_height(level_map, tile_size)
 
 VIRTUAL_RES = (screen_width, screen_height)

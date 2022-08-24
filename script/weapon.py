@@ -57,7 +57,7 @@ class Weapon(pygame.sprite.Sprite):
         self.image = self.or_image.copy()
 
     def get_self_type_info(self):
-        if os.path.exists('assets/graphics/weapon/' + self.type + '.png'):
+        if os.path.exists(resource_path('assets/graphics/weapon/' + self.type + '.png')):
             self.or_image = pygame.image.load(resource_path('assets/graphics/weapon/' + self.type + '.png')).convert_alpha()
         else:
             self.or_image = pygame.image.load(resource_path('assets/graphics/weapon/ak74.png')).convert_alpha()
@@ -294,18 +294,20 @@ class Weapon(pygame.sprite.Sprite):
             else:
                 self.rect = self.image.get_rect(midleft=self.user.rect.center + pygame.math.Vector2(x_offset, y_offset))
 
-    def shield(self):
+    def shield(self, mode = 'shield'):
         for sprite in self.obstacle_sprite:
-            if sprite == self:
-                pass
-            elif sprite == self.user:
-                pass
-            elif sprite.object_type == 'bullet':
+            if sprite.object_type == 'bullet':
                 if sprite.rect.colliderect(self.rect):
                     if sprite.direction.magnitude() != 0:
-                        sprite.move_to_object_pool(sprite)
-
+                        if mode == 'sword':
+                            if sprite.user != self.user:
+                                self.move_to_object_pool(sprite)
+                        elif mode == 'shield':
+                            self.move_to_object_pool(sprite)
+    
     def update(self):
+        if self.type == 'sword':
+            self.shield(mode='sword')
         if self.type == 'shield':
             self.shield()
             self.adjust_pos()

@@ -11,7 +11,6 @@ from flesh import Flesh
 from ui import UI
 import math
 from debug import debug
-from settings import joystick
 
 class Level:
     def __init__(self, level_data, surface):
@@ -288,7 +287,7 @@ class Level:
             debug(str(pygame.mouse.get_pos()), 10, 80)
             debug(str(self.player.sprite.health), 10, 110)
             debug(str(len(self.bullet_sprite)), 10, 130)
-            debug(str(self.player.sprite.weapon.angle), 10, 150)
+            debug(str(int(self.player.sprite.weapon.angle)), 10, 150)
             debug(str(len(self.object_pool.sprites())), 10, 170)
             if len(self.object_pool.sprites())>1:
                 debug(str(self.object_pool.sprites()[0].object_type), 10, 190)
@@ -297,7 +296,7 @@ class Level:
             # if len(self.object_pool.sprites())>1:
             #     print(self.object_pool.sprites()[0].object_type)
 
-from settings import screen, screen_height, screen_width
+from settings import screen, screen_height, screen_width, has_joystick, joystick, resource_path
 class YSortCameraGroup(pygame.sprite.Group):
     # in godot we call it YSort to make 2.5D
     def __init__(self):
@@ -319,6 +318,10 @@ class YSortCameraGroup(pygame.sprite.Group):
         camera_boarders_width = screen.get_size()[0]  - (self.camera_borders['left'] + self.camera_borders['right'])
         camera_boarders_height = screen.get_size()[1]  - (self.camera_borders['top'] + self.camera_borders['bottom'])
         self.camera_rect = pygame.Rect(camera_boarders_left, camera_boarders_top, camera_boarders_width, camera_boarders_height)
+
+        # creating the floor/ground
+        self.floor_surf = pygame.image.load(resource_path('assets/graphics/tilemap/ground.png')).convert()
+        self.floor_rect = self.floor_surf.get_rect(topleft = (0, 0))
 
         # camera speed
         self.keyboard_speed = 5
@@ -458,7 +461,8 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.keyboard_control_camera()
         self.zoom_keyboard_control()
         # for joy stick
-        self.camera_joystick_control(player)
+        if has_joystick:
+            self.camera_joystick_control(player)
         if self.mouse_camera:
             self.mouse_control_camera()
 
@@ -469,11 +473,11 @@ class YSortCameraGroup(pygame.sprite.Group):
             self.zoom_scale = self.zoom_scale_maxinum
         
         self.internal_surface.fill('grey')
-
         # drawing the floor
         # offset needed
         # floor_offset_pos = self.floor_rect.topleft - self.offset + self.internal_offset
-        # self.internal_surface.blit(self.floor_surf, floor_offset_pos)
+        floor_offset_pos = self.floor_rect.topleft # fixed stick at same place
+        self.internal_surface.blit(self.floor_surf, floor_offset_pos)
 
         # for sprite in self.sprites():
         for sprite in sorted(self.sprites(), key = lambda sprite: sprite.rect.centery):
