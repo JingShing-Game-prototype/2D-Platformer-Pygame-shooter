@@ -158,7 +158,6 @@ Enemy has a simple ai to aim player. And need to be trigger.
 - [ ] Random mode
 - [ ] Store System -> need money or credit
 - [ ] Mobile
-- [ ] Map editor -> map save system
 - [ ] bgm
 - [ ] more sfx
 - [ ] dual gun
@@ -181,6 +180,7 @@ Enemy has a simple ai to aim player. And need to be trigger.
 22/8/23
 
 - [x] xbox controller
+- [x] Map editor -> map save system
 
 22/8/25
 
