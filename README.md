@@ -158,6 +158,7 @@ Enemy has a simple ai to aim player. And need to be trigger.
 - [ ] bgm
 - [ ] more sfx
 - [ ] dual gun
+- [ ] controller vibration
 
 ## Finish
 
