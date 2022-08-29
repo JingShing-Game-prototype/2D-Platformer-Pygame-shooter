@@ -123,6 +123,7 @@ Enemy has a simple ai to aim player. And need to be trigger.
 ## Ver 0.6
 
 * Add controller vibration. (while getting damage or shooting bullet)
+* Add sword shield enemy bullet feature.
 
 ## object pool format process
 
@@ -161,6 +162,7 @@ Enemy has a simple ai to aim player. And need to be trigger.
 - [ ] bgm
 - [ ] more sfx
 - [ ] dual gun
+- [ ] delta time fix
 
 ## Finish
 
