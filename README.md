@@ -124,6 +124,9 @@ Enemy has a simple ai to aim player. And need to be trigger.
 
 * Add controller vibration. (while getting damage or shooting bullet)
 * Add sword shield enemy bullet feature.
+* Fixed pygame.display.set_mode method import.
+* Upgrade camera class.
+* Upgrade game class -> put screen and shader in it.
 
 ## object pool format process
 
