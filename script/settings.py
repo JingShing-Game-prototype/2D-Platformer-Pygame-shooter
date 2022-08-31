@@ -16,11 +16,11 @@ joystick = None
 if joystick_count > 0:
 	has_joystick = True
 	joystick = pygame.joystick.Joystick(0)
+
 def get_map_width_and_height(map, tile_size):
 	map_width = len(map[0])*tile_size
 	map_height = len(map) * tile_size
 	return map_width, map_height
-
 
 no_enemy_level_map = [
 '                            ',
@@ -47,6 +47,7 @@ level_map = [
 '       X  XXXX    XX  XXX   ',
 '    XXXX  XXXXXX  XX  XXXX  ',
 'XXXXXXXX  XXXXXX  XX  XXXX  ']
+
 if found_map_or_not('level0'):
 	load_map('assets/maps/' + 'level0' + '.txt', level_map)
 # else:
@@ -61,14 +62,6 @@ VIRTUAL_RES = (screen_width, screen_height)
 REAL_RES = (1280, 720)
 # VIRTUAL_RES = (800, 600)
 # REAL_RES = (800, 600)
-pygame.display.set_mode(REAL_RES, pygame.DOUBLEBUF|pygame.OPENGL)
-
-# game icon
-pygame.display.set_icon(pygame.image.load(resource_path('assets\icon\icon.png')).convert_alpha())
-pygame.display.set_caption('Gun Fight')
-
-screen = pygame.Surface(VIRTUAL_RES).convert((255, 65280, 16711680, 0))
-crt_shader = Graphic_engine(screen=screen, style=2, VIRTUAL_RES=VIRTUAL_RES)
 
 weapon_bullet_type = {
 	'ak74':{'name':'bullet', 'across_wall':False},

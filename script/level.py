@@ -22,7 +22,7 @@ class Level:
         self.current_x = 0
         
         # sprite group
-        self.visible_sprites = YSortCameraGroup()
+        self.visible_sprites = YSortCameraGroup(self.display_surface)
         self.obstacle_sprites = pygame.sprite.Group()
         self.tiles = pygame.sprite.Group()
         # single group for single player
@@ -43,7 +43,7 @@ class Level:
         self.bullet_far_kill_range = 800
 
         # UI
-        self.ui = UI()
+        self.ui = UI(self.display_surface)
 
     def create_jump_or_run_particles(self, pos, type='run'):
         if not self.player.sprite.flip:
@@ -282,28 +282,29 @@ class Level:
         self.get_player_on_ground()
         self.create_landing_dust()
 
-        # if self.player.sprite:
-        #     debug(str(self.player.sprite.rect), 10, 60)
-        #     debug(str(pygame.mouse.get_pos()), 10, 80)
-        #     debug(str(self.player.sprite.health), 10, 110)
-        #     debug(str(len(self.bullet_sprite)), 10, 130)
-        #     debug(str(int(self.player.sprite.weapon.angle)), 10, 150)
-        #     debug(str(len(self.object_pool.sprites())), 10, 170)
-        #     if len(self.object_pool.sprites())>1:
-        #         debug(str(self.object_pool.sprites()[0].object_type), 10, 190)
+        if self.player.sprite:
+            debug(str(self.player.sprite.rect), 10, 60, screen=self.display_surface)
+            debug(str(pygame.mouse.get_pos()), 10, 80, screen=self.display_surface)
+            debug(str(self.player.sprite.health), 10, 110, screen=self.display_surface)
+            debug(str(len(self.bullet_sprite)), 10, 130, screen=self.display_surface)
+            debug(str(int(self.player.sprite.weapon.angle)), 10, 150, screen=self.display_surface)
+            debug(str(len(self.object_pool.sprites())), 10, 170, screen=self.display_surface)
+            if len(self.object_pool.sprites())>1:
+                debug(str(self.object_pool.sprites()[0].object_type), 10, 190, screen=self.display_surface)
 
-from settings import screen, screen_height, screen_width, has_joystick, joystick, resource_path
+from settings import screen_height, screen_width, has_joystick, joystick, resource_path
 class YSortCameraGroup(pygame.sprite.Group):
     # in godot we call it YSort to make 2.5D
-    def __init__(self):
+    def __init__(self, screen):
         # general setup
         super().__init__()
+        self.screen = screen
 
         # camera offset
         self.offset = pygame.math.Vector2()
         # to stay player in middle of screen. cut it half.
-        self.half_screen_width = screen.get_size()[0]//2
-        self.half_screen_height = screen.get_size()[1]//2
+        self.half_screen_width = screen_width//2
+        self.half_screen_height = screen_height//2
         # //2 to get divide 2 result in int
 
         # box camera setup
@@ -311,8 +312,8 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.camera_borders = {'left': 400, 'right': 200, 'top': 200, 'bottom': 200}
         camera_boarders_left = self.camera_borders['left']
         camera_boarders_top = self.camera_borders['top']
-        camera_boarders_width = screen.get_size()[0]  - (self.camera_borders['left'] + self.camera_borders['right'])
-        camera_boarders_height = screen.get_size()[1]  - (self.camera_borders['top'] + self.camera_borders['bottom'])
+        camera_boarders_width = screen_width  - (self.camera_borders['left'] + self.camera_borders['right'])
+        camera_boarders_height = screen_height  - (self.camera_borders['top'] + self.camera_borders['bottom'])
         self.camera_rect = pygame.Rect(camera_boarders_left, camera_boarders_top, camera_boarders_width, camera_boarders_height)
 
         # creating the floor/ground
@@ -326,7 +327,7 @@ class YSortCameraGroup(pygame.sprite.Group):
         # zoom
         self.zoom_scale = 1
         # don't set too large would be lag
-        self.internal_surface_size = (screen_width * 1.5, screen_height * 1.5)
+        self.internal_surface_size = (screen_width * 3, screen_height * 3)
         self.internal_surface = pygame.Surface(self.internal_surface_size, pygame.SRCALPHA)
         self.internal_rect = self.internal_surface.get_rect(center = (self.half_screen_width, self.half_screen_height))
         self.internal_surface_size_vector = pygame.math.Vector2(self.internal_surface_size)
@@ -335,9 +336,9 @@ class YSortCameraGroup(pygame.sprite.Group):
         self.internal_offset.y = self.internal_surface_size[1] // 2 - self.half_screen_height
 
         self.zoom_scale_mininum = screen_width/self.internal_surface_size[0] # change to large scale
-        # self.zoom_scale_maxinum = self.internal_surface_size[0]/screen_width
+        self.zoom_scale_maxinum = self.internal_surface_size[0]/screen_width
         # self.zoom_scale_mininum = 0.1 # change to large scale
-        self.zoom_scale_maxinum = 5
+        # self.zoom_scale_maxinum = 5
 
         self.mouse_camera = False
         self.test_camera_box = False
@@ -387,8 +388,8 @@ class YSortCameraGroup(pygame.sprite.Group):
 
             left_border = self.camera_borders['left']
             top_border = self.camera_borders['top']
-            right_border = screen.get_size()[0] - self.camera_borders['right']
-            bottom_border = screen.get_size()[1] - self.camera_borders['bottom']
+            right_border = screen_width - self.camera_borders['right']
+            bottom_border = screen_height - self.camera_borders['bottom']
 
             if top_border < mouse.y < bottom_border:
                 if mouse.x < left_border:
@@ -492,8 +493,8 @@ class YSortCameraGroup(pygame.sprite.Group):
         scaled_surf  = pygame.transform.scale(self.internal_surface, self.internal_surface_size_vector * self.zoom_scale)
         scaled_rect = scaled_surf.get_rect(center = (self.half_screen_width, self.half_screen_height))
 
-        screen.blit(scaled_surf, scaled_rect)
+        self.screen.blit(scaled_surf, scaled_rect)
         
         if self.test_camera_box:
             # camera box line
-            pygame.draw.rect(screen, 'yellow', self.camera_rect, 5)
+            pygame.draw.rect(self.screen, 'yellow', self.camera_rect, 5)

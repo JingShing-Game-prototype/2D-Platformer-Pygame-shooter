@@ -6,16 +6,25 @@ class Game:
     def __init__(self):
         # pygame setup
         pygame.init()
-        pygame.mouse.set_visible(False)
+        pygame.display.set_mode(REAL_RES, pygame.DOUBLEBUF|pygame.OPENGL)
+
+        # game icon
+        pygame.display.set_icon(pygame.image.load(resource_path('assets\icon\icon.png')).convert_alpha())
+        pygame.display.set_caption('Gun Fight')
+
+        # Visual part
+        self.screen = pygame.Surface(VIRTUAL_RES).convert((255, 65280, 16711680, 0))
+        self.crt_shader = Graphic_engine(screen=self.screen, style=2, VIRTUAL_RES=VIRTUAL_RES)
 
         # cursor
+        pygame.mouse.set_visible(False)
         self.cursor_image = pygame.image.load(resource_path('assets/graphics/UI/aim.png'))
         self.cursor_image = pygame.transform.scale(self.cursor_image, (64, 64))
         self.cursor_image_rect = self.cursor_image.get_rect()
 
         self.clock = pygame.time.Clock()
         # self.level = Level(level_data=no_enemy_level_map, surface=screen)
-        self.level = Level(level_data=level_map, surface=screen)
+        self.level = Level(level_data=level_map, surface=self.screen)
 
     def dynamic_bullet_amount(self):
         if self.clock.get_fps() < 40 and self.level.max_bullet_in_map > 100:
@@ -36,10 +45,10 @@ class Game:
                         pygame.quit()
                         sys.exit()
                     if event.key == pygame.K_0:
-                        crt_shader.change_shader()
+                        self.crt_shader.change_shader()
                     if event.key == pygame.K_8:
-                        crt_shader.fullscreen = not crt_shader.fullscreen
-                        crt_shader.Full_screen(REAL_RES)
+                        self.crt_shader.fullscreen = not self.crt_shader.fullscreen
+                        self.crt_shader.Full_screen(REAL_RES)
                     if event.key == pygame.K_r:
                         self.level.setup_level(self.level.level_data, True)
                     if event.key == pygame.K_m:
@@ -62,8 +71,8 @@ class Game:
 
             self.level.run()
             self.cursor_image_rect.center = pygame.mouse.get_pos()
-            screen.blit(self.cursor_image, self.cursor_image_rect)
-            crt_shader()
+            self.screen.blit(self.cursor_image, self.cursor_image_rect)
+            self.crt_shader()
             self.clock.tick(60)
 
 if __name__ == '__main__':
