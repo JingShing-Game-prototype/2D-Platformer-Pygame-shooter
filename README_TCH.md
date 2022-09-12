@@ -27,24 +27,24 @@
 
 * 左搖桿移動
 * 方向鍵移動。 可以透過更改成相機模式來移動相機
-* left joystick button to active dpad camera mode.
-* right joystick to aim.(need to open aim mode first)
-* right joystick button to active aim mode.
-* A to jump.
-* Y, B to switch weapon.
-* RT to shoot.
-* LT to melee attack.
-* RB, LB to scale camera.
+* 按下左搖桿按鈕，切換到移動相機模式
+* 右搖桿瞄準(需要先切換到瞄準模式)
+* 右搖桿按鈕切換到瞄準模式
+* A 跳躍
+* Y, B 切換武器
+* RT 射擊
+* LT 近戰攻擊
+* RB, LB 縮放相機
 
 ## Ver 0.1
 
-Can use mouse to aim and used keyboard to control camera : scale camera, move camera, mouse control camera.
+可以透過滑鼠瞄準，透過鍵盤移動鏡頭 : 縮放鏡頭、平移鏡頭、滑鼠控制鏡頭
 
 ## Ver 0.2
 
-Add enemies and blood effect.
+新增敵人和噴血特效
 
-Enemy has a simple ai to aim player. And need to be trigger.
+敵人會瞄準玩家並且有仇恨系統
 
 ## Ver 0.3
 
