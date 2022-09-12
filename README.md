@@ -1,3 +1,5 @@
+English | [繁體中文](https://github.com/JingShing/2D-Platformer-Pygame-shooter/blob/main/README_TCH.md)
+
 ## User Manual
 
 You can get exe here : https://jingshing.itch.io/gunfight-prototype
