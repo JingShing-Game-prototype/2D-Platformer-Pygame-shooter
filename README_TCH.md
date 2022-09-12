@@ -1,32 +1,32 @@
 [English](https://github.com/JingShing/2D-Platformer-Pygame-shooter/blob/main/README.md) | 繁體中文
 
-## User Manual
+## User Manual用戶手冊
 
-You can get exe here : https://jingshing.itch.io/gunfight-prototype
+你可以在這取得 EXE : https://jingshing.itch.io/gunfight-prototype
 
-A 2D platformer shooter.
+一個2D平台射擊遊戲
 
-### keyboard & mouse
+### keyboard & mouse 鍵盤和滑鼠
 
-* w, a, s, d to move t, y, g, h to move camera
-* f to shoot in front of character
-* m to switch mouse control camera
-* l to open test camera box
-* O to active enemy hatred
-* mouse to aim
-* left mouse key to shoot
-* right mouse key to melee attack
-* Q, R to switch weapon
-* 0 to switch shader
-* 9 to resize camera
-* \+ , - to scale camera
-* T, Y, G, H to move camera
-* 8 to fullscreen 
+* w, a, s, d 移動角色 t, y, g, h 移動攝影機
+* f 射擊。(最新版移除)
+* m 更改成滑鼠控制鏡頭
+* l 開啟測試鏡頭框
+* O 激發敵人仇恨
+* 滑鼠瞄準
+* 左鍵射擊
+* 右鍵近戰
+* Q, R 更改武器
+* 0 更改濾鏡
+* 9 重置縮放
+* \+ , - 縮放鏡頭
+* T, Y, G, H 移動鏡頭
+* 8 更改成全螢幕
 
 ### Joystick
 
-* left joystick to move
-* dpad to move. also can move camera by activing camera mode.
+* 左搖桿移動
+* 方向鍵移動。 可以透過更改成相機模式來移動相機
 * left joystick button to active dpad camera mode.
 * right joystick to aim.(need to open aim mode first)
 * right joystick button to active aim mode.
