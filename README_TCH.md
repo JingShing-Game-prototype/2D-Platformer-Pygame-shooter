@@ -48,19 +48,19 @@
 
 ## Ver 0.3
 
-* Add entity class to collect similar function and variable from player and enemies.
-* Fixed aim line to make it more correct.
-* Using weapon fail fixed.
-* Shooting will shake weapon now.
-* Add China variable to control blood is green or red.
+* 增加生物類別，統合玩家和敵人的函數
+* 修復射擊線，讓射擊更準確
+* 武器使用失效修復
+* 射擊會抖動武器
+* 新增中國變量，將血色改成綠色，以通過審核
 
 ## Ver 0.4
 
-* Add switch weapon feature. Using list and index to change weapon.
+* 新增切換武器系統，透過列表更改武器
 
-* Add melee attack system. Use right mouse button to melee attack.
+* 新增近戰武器系統，用右鍵近戰攻擊
 
-* AI can melee attack now. Improved AI_attack function.
+* AI可以近戰攻擊。 優化 AI_attack 函數
 
 * Melee attack is part from up pos, down pos and middle pos has different value to edit.
 
@@ -146,16 +146,16 @@
    ```
 
 
-## Up to do
+## Up to do 未來待定
 
-- [ ] background particle -> reference sword rain
-- [ ] skill
-- [ ] Drop item -> new class?
-- [ ] Ammo limit -> do it with UI
-- [ ] Menu
-- [ ] more weapon -> need data dict and file to edit
-- [ ] switch map system
-- [ ] networking -> socket?
+- [ ] 背景粒子特效 -> 參考劍雨
+- [ ] 技能
+- [ ] 物品掉落 -> new class?
+- [ ] 子彈限制 -> do it with UI
+- [ ] 選單
+- [ ] 更多武器 -> need data dict and file to edit
+- [ ] 更改地圖系統
+- [ ] 網路系統 -> socket?
 - [ ] Improve AI move
 - [ ] Change Character sprite -> I hate spritesheet
 - [ ] Add crouch system
@@ -169,26 +169,26 @@
 - [ ] dual gun
 - [ ] delta time fix
 
-## Finish
+## 已完成
 
 22/8/21
 
-- [x] melee weapon and melee attack system
-- [x] switch weapon
-- [x] shield
-- [x] bullet across wall hack
+- [x] 近戰武器和近戰武器系統
+- [x] 切換武器
+- [x] 盾牌
+- [x] 子彈穿牆外掛
 
 22/8/22
 
-- [x] enemy body flesh explode effect
+- [x] 敵人屍體爆裂效果
 - [x] UI -> HP, Enemy info , Ammo, Item Info, Map info ...
-- [x] object pool to keep bullet and weapon.
+- [x] 物件池會保留子彈和武器
 
 22/8/23
 
-- [x] xbox controller
-- [x] Map editor -> map save system
+- [x] xbox 控制器
+- [x] 地圖編輯器 -> 地圖保存系統
 
 22/8/25
 
-- [x] controller vibration
+- [x] 手柄震動
