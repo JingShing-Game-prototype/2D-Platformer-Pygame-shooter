@@ -130,7 +130,7 @@
 * Upgrade camera class.
 * Upgrade game class -> put screen and shader in it.
 
-## object pool format process
+## 物件池運作流程
 
 1. Set used_groups to store groups and old_self function to load new info\
 
