@@ -2,7 +2,7 @@
 
 ## User Manual用戶手冊
 
-你可以在這取得 EXE : https://jingshing.itch.io/gunfight-prototype
+你可以在[這取得 EXE](https://jingshing.itch.io/gunfight-prototype)。
 
 一個2D平台射擊遊戲
 
